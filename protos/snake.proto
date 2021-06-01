@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package PnD;
+
+message Vector2D{
+	optional int32 x=1;
+	optional int32 y=2;
+}
+message Snake{
+	optional int32 id=1;
+	repeated Vector2D body=2;	
+	optional Vector2D direction=3;
+}
+message GameState{
+
+
+	optional Vector2D fruit=1;
+	repeated Snake players=2;
+}
