@@ -2,7 +2,7 @@ import pygame
 import sys
 import random
 import snake_pb2 as serialMsg
-GAME_SPEED = 10  # esto determina la velocidad del juego (mayor -> mas rapido)
+GAME_SPEED = 5  # esto determina la velocidad del juego (mayor -> mas rapido)
 
 COLOR_SNAKE = (50, 100, 20)
 SIZE_SNAKE = 7  # tam inicial
@@ -57,9 +57,13 @@ class Snake():
             bodyPos.x = int(b[0])
             bodyPos.y = int(b[1])
             i = i+1
-        print(i)
-        
         return msg
+    def from_msg(self,msg):
+        self.id = msg.id
+        self.direction = (msg.direction.x,msg.direction.y)
+        self.positions.clear()
+        for p in msg.body:
+            self.positions.append((p.x,p.y))
 
     def get_head_position(self):
         return self.positions[0]
@@ -110,10 +114,6 @@ class Snake():
     def handle_keys(self):  # no hay cebolla de input (┬┬﹏┬┬)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                msg = self.get_msg()
-                file = open("pysnake.data","wb")
-                file.write(msg.SerializeToString())
-                file.close()
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
@@ -125,6 +125,17 @@ class Snake():
                     self.turn(left)
                 elif event.key == pygame.K_RIGHT:
                     self.turn(right)
+                elif event.key == pygame.K_l:
+                    file = open("pysnake.data","rb")
+                    msg = serialMsg.Snake()
+                    msg.ParseFromString(file.read())
+                    self.from_msg(msg)
+                elif event.key == pygame.K_s:
+                    msg = self.get_msg()
+                    file = open("pysnake.data","wb")
+                    file.write(msg.SerializeToString())
+                    file.close()
+
 
 
 class Food():           # Donuts (*/ω＼*)
