@@ -1,7 +1,7 @@
 import pygame
 import sys
 import random
-
+import snake_pb2 as serialMsg
 GAME_SPEED = 10  # esto determina la velocidad del juego (mayor -> mas rapido)
 
 COLOR_SNAKE = (50, 100, 20)
@@ -33,7 +33,6 @@ down = (0, 1)
 left = (-1, 0)
 right = (1, 0)
 
-
 class Snake():
     def __init__(self):
         self.length = SIZE_SNAKE
@@ -45,6 +44,22 @@ class Snake():
         self.score = 0
         # este bool evita que la serpiente se pise a si misma al hacer buffering de input en el mismo frame 
         self.turned = False     # es dependiente de la implementación del juego, no se si será<necesario serializarlo 
+        self.id = -1;
+
+    def get_msg(self):
+        msg = serialMsg.Snake()
+        msg.id = self.id
+        msg.direction.x = self.direction[0]
+        msg.direction.y = self.direction[1]
+        i = 0
+        for b in self.positions:
+            bodyPos = msg.body.add()
+            bodyPos.x = int(b[0])
+            bodyPos.y = int(b[1])
+            i = i+1
+        print(i)
+        
+        return msg
 
     def get_head_position(self):
         return self.positions[0]
@@ -95,6 +110,10 @@ class Snake():
     def handle_keys(self):  # no hay cebolla de input (┬┬﹏┬┬)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                msg = self.get_msg()
+                file = open("pysnake.data","wb")
+                file.write(msg.SerializeToString())
+                file.close()
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.KEYDOWN:

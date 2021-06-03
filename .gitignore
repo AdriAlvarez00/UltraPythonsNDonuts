@@ -3,4 +3,10 @@
 
 *.o
 
+*.data
+
 server/PnDSever
+
+client/.vim/
+
+client/__pycache__/

@@ -1,6 +1,7 @@
 #ifndef SERIALIZABLE_H_
 #define SERIALIZABLE_H_
 
+#include <google/protobuf/any.h>
 #include <stdlib.h>
 #include <google/protobuf/message.h>
 
@@ -19,8 +20,10 @@
  *  |        |    - size es el tamaño total de la región data
  *  +--------+
  */
+template <class T>
 class Serializable
 {
+	typedef typename std::enable_if<std::is_base_of<google::protobuf::Message, T>::value>::type check;
 public:
 
     Serializable(){};
@@ -40,6 +43,16 @@ public:
      */
     virtual int from_bin(char * data) = 0;
 
+    /**
+     * Rellena el mensaje con la informacion necesaria
+     */
+    virtual void fill_message(T* msg) = 0;
+
+
+    /**
+     *
+     */
+    virtual int from_message(T* msg) = 0;
     /**
      *  Devuelve un puntero al buffer interno con la representación del objeto.
      *  Debe inicializarse previamente via Serializable::to_bin()

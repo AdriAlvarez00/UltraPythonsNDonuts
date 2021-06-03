@@ -30,7 +30,7 @@ Socket::Socket(const char * address, const char * port):sd(-1)
 	sa_len = result->ai_addrlen;
 }
 
-int Socket::recv(Serializable &obj, Socket * &sock)
+int Socket::recv(Serializable<google::protobuf::Message> &obj, Socket * &sock)
 {
     struct sockaddr sa;
     socklen_t sa_len = sizeof(struct sockaddr);
@@ -54,7 +54,7 @@ int Socket::recv(Serializable &obj, Socket * &sock)
     return 0;
 }
 
-int Socket::send(Serializable& obj, const Socket& sock)
+int Socket::send(Serializable<google::protobuf::Message>& obj, const Socket& sock)
 {
     //Serializar el objeto
     obj.to_bin();

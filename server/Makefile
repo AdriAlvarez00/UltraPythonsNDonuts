@@ -1,21 +1,22 @@
 CC=g++
 CFLAGS=-g -I.
 DEPS = Socket.h snake.pb.h SnakeGames.h
-OBJ = Socket.o PnDServer.o snake.pb.o SnakeGames.o
+OBJ = Socket.o snake.pb.o SnakeGames.o 
 LIBS= -lpthread -lprotobuf
 
 %.o: %.cc $(DEPS)
 	$(CC) -g -c -o $@ $< $(CFLAGS)
 
-all: PnDSever
+all: PnDSever loadSnake
 
 PnDSever: $(OBJ) PnDServer.o
 	g++ -o $@ $^ $(CFLAGS) $(LIBS)
 
+loadSnake: $(OBJ) loadSnake.o
+	g++ -o $@ $^ $(CFLAGS) $(LIBS)
 
 
 .PHONY: clean
 
 clean:
-	rm -f *.o PnDs
-
+	rm -f *.o PnDServer
