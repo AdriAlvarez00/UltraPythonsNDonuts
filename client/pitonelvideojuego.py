@@ -55,8 +55,8 @@ class Snake():
     def get_msg(self):
         msg = serialMsg.Snake()
         msg.id = self.id
-        msg.direction.x = self.direction.x
-        msg.direction.y = self.direction.y
+        msg.direction.x = int(self.direction.x)
+        msg.direction.y = int(self.direction.y)
         i = 0
         for b in self.positions:
             bodyPos = msg.body.add()
@@ -66,10 +66,10 @@ class Snake():
         return msg
     def from_msg(self,msg):
         self.id = msg.id
-        self.direction = (msg.direction.x,msg.direction.y)
+        self.direction = Vector2(msg.direction.x,msg.direction.y)
         self.positions.clear()
         for p in msg.body:
-            self.positions.append((p.x,p.y))
+            self.positions.append(Vector2(p.x,p.y))
 
     def get_head_position(self):
         return self.positions[0]
@@ -174,6 +174,31 @@ def drawGrid(surface):  # dibujamos el fondo
                 pygame.draw.rect(surface, COLOR_BG_2, r)
 
 
+class GameState():
+    def __init__(self):
+        self.snakes = [Snake()]
+        self.food = Food()
+        self.food.randomize_position(self.snakes[0])
+    def update(self):
+        for snake in self.snakes:
+            snake.handle_keys()
+            snake.move()
+            
+            if snake.get_head_position() == self.food.position:
+                snake.length += LENGTH__PER_FOOD
+                snake.score += SCORE_PER_FOOD
+                self.food.randomize_position(self.snakes[0])
+
+
+    def draw(self,surface):
+        drawGrid(surface)
+        for snake in self.snakes:
+            snake.draw(surface)
+        self.food.draw(surface)
+
+        
+
+
 def main():
     pygame.init()  # inicializamos movidas de pygame
 
@@ -189,20 +214,13 @@ def main():
 
     myfont = pygame.font.SysFont("monospace", 16)  # IU de los donuts ingeridos
 
+    gs = GameState()
+
     while (True):
         clock.tick(GAME_SPEED)
-        drawGrid(surface)
 
-        snake.handle_keys()
-        snake.move()
-        # si la cabeza de la serpiente esta encima de comida, nos la comemos y spawneamos mas
-        if snake.get_head_position() == food.position:
-            snake.length += LENGTH__PER_FOOD
-            snake.score += SCORE_PER_FOOD
-            food.randomize_position(snake)
-
-        snake.draw(surface)
-        food.draw(surface)
+        gs.update()
+        gs.draw(surface)
         # esto manda la surface a la ventana para pintarla
         screen.blit(surface, (0, 0))
 
