@@ -24,7 +24,7 @@
 class Serializable
 {
 public:
-    Serializable() { };
+    Serializable(PnD::MessageID bId = PnD::MessageID::LOGINPETITION):_id(bId) { };
 
     virtual ~Serializable(){
         //TODO investigar por que da error si hacemos
@@ -43,7 +43,7 @@ public:
      *    @param data representación binaria del objeto
      *    @return 0 si éxito -1 en caso contrario
      */
-    virtual int from_bin(char *data) = 0;
+    virtual int from_bin(google::protobuf::io::CodedInputStream& cis) = 0;
     /**
      *  Devuelve un puntero al buffer interno con la representación del objeto.
      *  Debe inicializarse previamente via Serializable::to_bin()
@@ -77,7 +77,7 @@ protected:
 
     int32_t _size;
 
-    PnD::MessageID _id=PnD::MessageID::GAMEUPDATE;
+    PnD::MessageID _id;
 };
 
 // -----------------------------------------------------------------------------

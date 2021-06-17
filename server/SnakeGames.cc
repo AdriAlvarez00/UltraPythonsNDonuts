@@ -8,8 +8,8 @@ void Vector2::to_bin(){
 	_size = _msg.ByteSizeLong();
 }
 
-int Vector2::from_bin(char* data){
-	_msg.ParseFromString(data);
+int Vector2::from_bin(google::protobuf::io::CodedInputStream& cis){
+	_msg.ParseFromCodedStream(&cis);
 	x = _msg.x();
 	y = _msg.y();
 	return 0;
@@ -36,8 +36,8 @@ void Snake::to_bin(){
 	_size = _msg.ByteSizeLong();
 }
 
-int Snake::from_bin(char* data){
-	_msg.ParseFromString(data);
+int Snake::from_bin(google::protobuf::io::CodedInputStream& cis){
+	_msg.ParseFromCodedStream(&cis);
 	id = _msg.id();
 	std::cout << "leido id " << _msg.id() << std::endl;
 	std::cout << "inX: " << _msg.mutable_direction()->x() << " inY: " << _msg.mutable_direction()->y() << std::endl;

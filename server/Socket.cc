@@ -36,16 +36,13 @@ Socket::Socket(const char * address, const char * port):sd(-1)
 }
 
 void Socket::recvHeader(Socket * &sock,Header* h){
-    char buf[4];
-    int rc = ::recv(sd,buf,4,MSG_PEEK);
+    char buf[MAX_MESSAGE_SIZE];
+    int rc = ::recv(sd,buf,MAX_MESSAGE_SIZE,MSG_PEEK);
     google::protobuf::uint32 sz;
     google::protobuf::io::ArrayInputStream ais(buf,4);
     CodedInputStream cis(&ais);
     cis.ReadVarint32(&sz);
-    
-    char* hdbuf = new char[sz];
-    rc = ::recv(sd,hdbuf,sz,MSG_PEEK);
-    h->from_bin(hdbuf+4);
+    h->from_bin(cis);
 }
 
 int Socket::loadObj(Serializable &obj, Socket * &sock)
@@ -69,8 +66,14 @@ int Socket::loadObj(Serializable &obj, Socket * &sock)
         sock = new Socket(&sa, sa_len);
     }
 
-    std::cout << "tam32 " << sizeof(int32_t);
-    obj.from_bin(buffer+4+sample.size());
+    google::protobuf::uint32 sz;
+    google::protobuf::io::ArrayInputStream ais(buffer,MAX_MESSAGE_SIZE);
+    CodedInputStream cis(&ais);
+    cis.ReadVarint32(&sz);
+    auto lim = cis.PushLimit(sz);
+    sample.from_bin(cis);
+    cis.PopLimit(lim);
+    obj.from_bin(cis);
 
     return 0;
 }

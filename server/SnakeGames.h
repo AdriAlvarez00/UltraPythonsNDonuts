@@ -13,8 +13,8 @@ class Header : public Serializable{
 		_data = _msgHeader.SerializeAsString();
 		_size = _msgHeader.ByteSizeLong();
 	}
-	virtual int from_bin(char* data) override{
-		_msgHeader.ParseFromString(data);
+	virtual int from_bin(google::protobuf::io::CodedInputStream& cis) override{
+		_msgHeader.ParseFromCodedStream(&cis);
 		id = _msgHeader.msgid();
 		return 0;
 	}
@@ -33,7 +33,7 @@ class Vector2 : public Serializable{
 		int getX() const {return x;}
 		int getY() const {return y;}
 		virtual void to_bin() override;
-		virtual int from_bin(char* bin) override;
+		virtual int from_bin(google::protobuf::io::CodedInputStream& cis) override;
 		Vector2 operator+(const Vector2& b){
 			Vector2 v(this->x+b.x,this->y+b.y);
 			return v;
@@ -61,7 +61,7 @@ class Snake : public Serializable{
 	public:
 		Snake(int i):id(i),dir(Vector2(1,0)),body({Vector2(6,9),Vector2(5,9)}),length(2){};
 		virtual void to_bin() override;
-		virtual int from_bin(char* data) override;
+		virtual int from_bin(google::protobuf::io::CodedInputStream& cis) override;
 
 		Vector2 getHead() const{return body.front();}
 
