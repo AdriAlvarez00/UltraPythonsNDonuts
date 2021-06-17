@@ -1,42 +1,53 @@
 #include "SnakeGames.h"
 #include "snake.pb.h"
 
-void Vector2::fill_message(PnD::Vector2D* msg){
-	msg->set_x(x);
-	msg->set_y(y);
+void Vector2::to_bin(){
+	_msg.set_x(x);
+	_msg.set_y(y);
+	_data = _msg.SerializeAsString();
+	_size = _msg.ByteSizeLong();
 }
 
-int Vector2::from_message(PnD::Vector2D* msg){
-	x = msg->x();
-	y = msg->y();
+int Vector2::from_bin(char* data){
+	_msg.ParseFromString(data);
+	x = _msg.x();
+	y = _msg.y();
 	return 0;
 }
 
-void Snake::fill_message(PnD::Snake* msg){
-	msg->set_id(id);
-	std::cout << "filled id: " << msg->id() << std::endl;
-	dir.fill_message(msg->mutable_direction());
-	std::cout << msg->direction().x() << " " << msg->direction().y() << std::endl;
-	msg->clear_body();
+void Snake::to_bin(){
+	
+	_msg.set_id(id);
+	std::cout << "filled id: " << _msg.id() << std::endl;
+	_msg.mutable_direction()->set_x(dir.getX());
+	_msg.mutable_direction()->set_y(dir.getY());
+	std::cout << _msg.direction().x() << " " << _msg.direction().y() << std::endl;
+	_msg.clear_body();
 	for(auto it = body.begin();it!=body.end();++it){
-		it->fill_message(msg->add_body());
+		PnD::Vector2D* v = _msg.add_body();
+		v->set_x(it->getX());
+		v->set_y(it->getY());
 	}
 	std::cout << "AFTER FILL BEFORE SERIAL --------------" << std::endl;
-	for(auto it = msg->body().begin(); it!=msg->body().end();++it)
+	for(auto it = _msg.body().begin(); it!=_msg.body().end();++it)
 		std::cout << "x: " << it->x() << "  y: " << it->y() << "///";
+
+	_data = _msg.SerializeAsString();
+	_size = _msg.ByteSizeLong();
 }
 
-int Snake::from_message(PnD::Snake* msg){
-	id = msg->id();
-	std::cout << "leido id " << msg->id() << std::endl;
-	std::cout << "inX: " << msg->mutable_direction()->x() << " inY: " << msg->mutable_direction()->y() << std::endl;
-	dir = Vector2(msg->direction().x(),msg->direction().y());
+int Snake::from_bin(char* data){
+	_msg.ParseFromString(data);
+	id = _msg.id();
+	std::cout << "leido id " << _msg.id() << std::endl;
+	std::cout << "inX: " << _msg.mutable_direction()->x() << " inY: " << _msg.mutable_direction()->y() << std::endl;
+	dir = Vector2(_msg.direction().x(),_msg.direction().y());
 	//TODO mejorar esto, teniendo en cuenta que las serpientes solo pueden crecer
 	//Podriamos actualizar el cuerpo existente, comprobar el size y solo hacer resize si es necesario
-	body.resize(msg->body_size());
-	std::cout << "leyendo cuerpo tam: " << msg->body_size() << std::endl;
-	for(int i = 0;i<msg->body_size();i++){
-		body[i].from_message((PnD::Vector2D*)&msg->body(i));
+	body.resize(_msg.body_size());
+	std::cout << "leyendo cuerpo tam: " << _msg.body_size() << std::endl;
+	for(int i = 0;i<_msg.body_size();i++){
+		body[i] = Vector2(_msg.body()[i].x(),_msg.body()[i].y());
 	}
 
 	return 0;

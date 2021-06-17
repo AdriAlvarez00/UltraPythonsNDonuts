@@ -7,9 +7,12 @@ LIBS= -lpthread -lprotobuf
 %.o: %.cc $(DEPS)
 	$(CC) -g -c -o $@ $< $(CFLAGS)
 
-all: PnDTest loadSnake
+all: PnDTest loadSnake PnDSender
 
 PnDTest: $(OBJ) PnDTest.o
+	g++ -o $@ $^ $(CFLAGS) $(LIBS)
+
+PnDSender: $(OBJ) PnDSender.o
 	g++ -o $@ $^ $(CFLAGS) $(LIBS)
 
 loadSnake: $(OBJ) loadSnake.o
@@ -19,4 +22,4 @@ loadSnake: $(OBJ) loadSnake.o
 .PHONY: clean
 
 clean:
-	rm -f *.o PnDServer
+	rm -f *.o PnDServer PnDTest PnDSender

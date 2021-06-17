@@ -4,31 +4,36 @@
 #include <iostream>
 #include <deque>
 
-class Header : public Serializable<PnD::Header>{
+class Header : public Serializable{
 	public:
 	PnD::MessageID id;
-	virtual void fill_message(PnD::Header* msg) override{
-		msg->set_msgid(id);
+	PnD::Header _msgHeader;
+	virtual void to_bin() override{
+		_msgHeader.set_msgid(id);
+		_data = _msgHeader.SerializeAsString();
+		_size = _msgHeader.ByteSizeLong();
 	}
-	virtual int from_message(PnD::Header* msg) override{
-		id = msg->msgid();
+	virtual int from_bin(char* data) override{
+		_msgHeader.ParseFromString(data);
+		id = _msgHeader.msgid();
 		return 0;
 	}
 
-	Header():id(PnD::MessageID::GAMESTART){}
-	Header(PnD::MessageID i):id(i){}
+	Header(PnD::MessageID i=PnD::MessageID::LOGINPETITION):id(i){
+	}
 
 };
 
-class Vector2 : public Serializable<PnD::Vector2D>{
+class Vector2 : public Serializable{
 	protected:
 		int x;
 		int y;
+		PnD::Vector2D _msg;
 	public:
 		int getX() const {return x;}
 		int getY() const {return y;}
-		virtual void fill_message(PnD::Vector2D* msg) override;
-		virtual int from_message(PnD::Vector2D* msg) override;
+		virtual void to_bin() override;
+		virtual int from_bin(char* bin) override;
 		Vector2 operator+(const Vector2& b){
 			Vector2 v(this->x+b.x,this->y+b.y);
 			return v;
@@ -46,16 +51,17 @@ class Vector2 : public Serializable<PnD::Vector2D>{
 
 };
 
-class Snake : public Serializable<PnD::Snake>{
+class Snake : public Serializable{
 	protected:
 		std::deque<Vector2> body;
 		Vector2 dir;
 		int32_t id;
 		int32_t length;
+		PnD::Snake _msg;
 	public:
 		Snake(int i):id(i),dir(Vector2(1,0)),body({Vector2(6,9),Vector2(5,9)}),length(2){};
-		virtual void fill_message(PnD::Snake* msg) override;
-		virtual int from_message(PnD::Snake* msg) override;
+		virtual void to_bin() override;
+		virtual int from_bin(char* data) override;
 
 		Vector2 getHead() const{return body.front();}
 
@@ -90,5 +96,9 @@ class Snake : public Serializable<PnD::Snake>{
 		void setDir(Vector2 d){
 			//TODO validacion de input
 			dir=d;
+		}
+
+		int getSnakeID(){
+			return id;
 		}
 };

@@ -5,6 +5,7 @@
 #include "Serializable.h"
 #include "Socket.h"
 #include "snake.pb.h"
+#include "SnakeGames.h"
 
 using namespace google::protobuf::io;
 
@@ -34,28 +35,29 @@ Socket::Socket(const char * address, const char * port):sd(-1)
 	sa_len = result->ai_addrlen;
 }
 
-Header Socket::recvHeader(Socket * &sock){
+void Socket::recvHeader(Socket * &sock,Header* h){
     char buf[4];
+    int rc = ::recv(sd,buf,4,MSG_PEEK);
     google::protobuf::uint32 sz;
     google::protobuf::io::ArrayInputStream ais(buf,4);
     CodedInputStream cis(&ais);
     cis.ReadVarint32(&sz);
     
     char* hdbuf = new char[sz];
-    int rc = ::recv(sd,hdbuf,sz,0);
-    Header h;
-    h.from_bin(hdbuf);
-    return h;
+    rc = ::recv(sd,hdbuf,sz,MSG_PEEK);
+    h->from_bin(hdbuf+4);
 }
 
-int Socket::recvObj(Serializable<google::protobuf::Message> &obj, Socket * &sock)
+int Socket::loadObj(Serializable &obj, Socket * &sock)
 {
     struct sockaddr sa;
     socklen_t sa_len = sizeof(struct sockaddr);
 
     char buffer[MAX_MESSAGE_SIZE];
 
-    ssize_t bytes = ::recvfrom(sd, buffer, MAX_MESSAGE_SIZE, 0, &sa, &sa_len);
+    ssize_t bytes = ::recvfrom(sd, buffer, MAX_MESSAGE_SIZE,0, &sa, &sa_len);
+    Header sample;
+    sample.to_bin();
 
     if ( bytes <= 0 )
     {
@@ -67,16 +69,19 @@ int Socket::recvObj(Serializable<google::protobuf::Message> &obj, Socket * &sock
         sock = new Socket(&sa, sa_len);
     }
 
-    obj.from_bin(buffer);
+    std::cout << "tam32 " << sizeof(int32_t);
+    obj.from_bin(buffer+4+sample.size());
 
     return 0;
 }
 
-int Socket::send(Serializable<google::protobuf::Message>& obj, const Socket& sock)
+int Socket::send(Serializable& obj, const Socket& sock)
 {
     //Creamos la cabecera
-    Header header(PnD::MessageID::GAMEUPDATE);//TODO getID
+    Header header(obj.getID());
+    header.to_bin();
     obj.to_bin();
+    
     int sz = header.size()+4+obj.size();
 
     char* pkg = new char[sz];
@@ -91,7 +96,10 @@ int Socket::send(Serializable<google::protobuf::Message>& obj, const Socket& soc
     //Serializar el objeto
     //Enviar el objeto binario a sock usando el socket sd
     int rc = sendto(sd,(void*)pkg,sz,0,&sock.sa,sock.sa_len);
-    return (rc!=-1)?0:-1;
+    
+    if(rc != -1)
+        return 0;
+    return -1;
 }
 
 bool operator== (const Socket &s1, const Socket &s2)

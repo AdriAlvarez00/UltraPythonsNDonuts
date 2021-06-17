@@ -10,15 +10,12 @@
 
 #include <ostream>
 #include <google/protobuf/message.h>
-
-#include "SnakeGames.h"
-
 // -----------------------------------------------------------------------------
 // Definiciones adelantadas
 // -----------------------------------------------------------------------------
 class Socket;
-template <class T>
 class Serializable;
+class Header;
 
 /**
  *  Esta función compara dos Socks, realizando la comparación de las structuras
@@ -77,7 +74,7 @@ public:
      * 
      * 
     */
-   Header recvHeader(Socket * &sock);
+   void recvHeader(Socket * &sock,Header* header);
 
     /**
      *  Recibe un mensaje de aplicación
@@ -90,13 +87,13 @@ public:
      *
      *    @return 0 en caso de éxito o -1 si error (cerrar conexión)
      */
-    int recvObj(Serializable<google::protobuf::Message> &obj, Socket * &sock);
+    int loadObj(Serializable &obj, Socket * &sock);
 
-    int recv(Serializable<google::protobuf::Message> &obj) //Descarta los datos del otro extremo
+    int recv(Serializable &obj) //Descarta los datos del otro extremo
     {
         Socket * s = 0;
 
-        return recvObj(obj, s);
+        return loadObj(obj, s);
     }
 
     /**
@@ -108,7 +105,7 @@ public:
      *
      *    @return 0 en caso de éxito o -1 si error
      */
-    int send(Serializable<google::protobuf::Message> &obj, const Socket& sock);
+    int send(Serializable &obj, const Socket& sock);
 
     /**
      *  Enlaza el descriptor del socket a la dirección y puerto
