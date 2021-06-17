@@ -1,8 +1,13 @@
 #include <string.h>
 #include <sys/socket.h>
+#include <google/protobuf/io/zero_copy_stream_impl_lite.h>
 
 #include "Serializable.h"
 #include "Socket.h"
+#include "snake.pb.h"
+#include "SnakeGames.h"
+
+using namespace google::protobuf::io;
 
 Socket::Socket(const char * address, const char * port):sd(-1)
 {
@@ -30,14 +35,26 @@ Socket::Socket(const char * address, const char * port):sd(-1)
 	sa_len = result->ai_addrlen;
 }
 
-int Socket::recv(Serializable<google::protobuf::Message> &obj, Socket * &sock)
+void Socket::recvHeader(Socket * &sock,Header* h){
+    char buf[MAX_MESSAGE_SIZE];
+    int rc = ::recv(sd,buf,MAX_MESSAGE_SIZE,MSG_PEEK);
+    google::protobuf::uint32 sz;
+    google::protobuf::io::ArrayInputStream ais(buf,4);
+    CodedInputStream cis(&ais);
+    cis.ReadVarint32(&sz);
+    h->from_bin(cis);
+}
+
+int Socket::loadObj(Serializable &obj, Socket * &sock)
 {
     struct sockaddr sa;
     socklen_t sa_len = sizeof(struct sockaddr);
 
     char buffer[MAX_MESSAGE_SIZE];
 
-    ssize_t bytes = ::recvfrom(sd, buffer, MAX_MESSAGE_SIZE, 0, &sa, &sa_len);
+    ssize_t bytes = ::recvfrom(sd, buffer, MAX_MESSAGE_SIZE,0, &sa, &sa_len);
+    Header sample;
+    sample.to_bin();
 
     if ( bytes <= 0 )
     {
@@ -49,18 +66,43 @@ int Socket::recv(Serializable<google::protobuf::Message> &obj, Socket * &sock)
         sock = new Socket(&sa, sa_len);
     }
 
-    obj.from_bin(buffer);
+    google::protobuf::uint32 sz;
+    google::protobuf::io::ArrayInputStream ais(buffer,MAX_MESSAGE_SIZE);
+    CodedInputStream cis(&ais);
+    cis.ReadVarint32(&sz);
+    auto lim = cis.PushLimit(sz);
+    sample.from_bin(cis);
+    cis.PopLimit(lim);
+    obj.from_bin(cis);
 
     return 0;
 }
 
-int Socket::send(Serializable<google::protobuf::Message>& obj, const Socket& sock)
+int Socket::send(Serializable& obj, const Socket& sock)
 {
-    //Serializar el objeto
+    //Creamos la cabecera
+    Header header(obj.getID());
+    header.to_bin();
     obj.to_bin();
+    
+    int sz = header.size()+4+obj.size();
+
+    char* pkg = new char[sz];
+    google::protobuf::io::ArrayOutputStream aos(pkg,sz);
+
+    CodedOutputStream *cos= new CodedOutputStream(&aos);
+    cos->WriteVarint32(header.size());
+    cos->WriteString(header.data());
+    cos->WriteString(obj.data());
+    
+
+    //Serializar el objeto
     //Enviar el objeto binario a sock usando el socket sd
-    int rc = sendto(sd,obj.data().c_str(),obj.size(),0,&sock.sa,sock.sa_len);
-    return (rc!=-1)?0:-1;
+    int rc = sendto(sd,(void*)pkg,sz,0,&sock.sa,sock.sa_len);
+    
+    if(rc != -1)
+        return 0;
+    return -1;
 }
 
 bool operator== (const Socket &s1, const Socket &s2)

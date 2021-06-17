@@ -3,6 +3,7 @@
 
 import sys
 _b=sys.version_info[0]<3 and (lambda x:x) or (lambda x:x.encode('latin1'))
+from google.protobuf.internal import enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from google.protobuf import reflection as _reflection
@@ -19,9 +20,44 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='PnD',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x0bsnake.proto\x12\x03PnD\" \n\x08Vector2D\x12\t\n\x01x\x18\x01 \x01(\x05\x12\t\n\x01y\x18\x02 \x01(\x05\"R\n\x05Snake\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x1b\n\x04\x62ody\x18\x02 \x03(\x0b\x32\r.PnD.Vector2D\x12 \n\tdirection\x18\x03 \x01(\x0b\x32\r.PnD.Vector2D\"F\n\tGameState\x12\x1c\n\x05\x66ruit\x18\x01 \x01(\x0b\x32\r.PnD.Vector2D\x12\x1b\n\x07players\x18\x02 \x03(\x0b\x32\n.PnD.Snakeb\x06proto3')
+  serialized_pb=_b('\n\x0bsnake.proto\x12\x03PnD\" \n\x08Vector2D\x12\t\n\x01x\x18\x01 \x01(\x05\x12\t\n\x01y\x18\x02 \x01(\x05\"R\n\x05Snake\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x1b\n\x04\x62ody\x18\x02 \x03(\x0b\x32\r.PnD.Vector2D\x12 \n\tdirection\x18\x03 \x01(\x0b\x32\r.PnD.Vector2D\"F\n\tGameState\x12\x1c\n\x05\x66ruit\x18\x01 \x01(\x0b\x32\r.PnD.Vector2D\x12\x1b\n\x07players\x18\x02 \x03(\x0b\x32\n.PnD.Snake\"\x1d\n\rLoginPetition\x12\x0c\n\x04nick\x18\x01 \x01(\t\"#\n\rLoginResponse\x12\x12\n\nassignedId\x18\x01 \x01(\x05\"\'\n\x06Header\x12\x1d\n\x05msgID\x18\x01 \x01(\x0e\x32\x0e.PnD.MessageID\"5\n\x05Input\x12\n\n\x02id\x18\x01 \x01(\x05\x12 \n\tdirection\x18\x02 \x01(\x0b\x32\r.PnD.Vector2D*P\n\tMessageID\x12\x11\n\rLOGINPETITION\x10\x00\x12\x11\n\rLOGINRESPONSE\x10\x01\x12\r\n\tGAMESTART\x10\x02\x12\x0e\n\nGAMEUPDATE\x10\x03\x62\x06proto3')
 )
 
+_MESSAGEID = _descriptor.EnumDescriptor(
+  name='MessageID',
+  full_name='PnD.MessageID',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='LOGINPETITION', index=0, number=0,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='LOGINRESPONSE', index=1, number=1,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='GAMESTART', index=2, number=2,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='GAMEUPDATE', index=3, number=3,
+      serialized_options=None,
+      type=None),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=374,
+  serialized_end=454,
+)
+_sym_db.RegisterEnumDescriptor(_MESSAGEID)
+
+MessageID = enum_type_wrapper.EnumTypeWrapper(_MESSAGEID)
+LOGINPETITION = 0
+LOGINRESPONSE = 1
+GAMESTART = 2
+GAMEUPDATE = 3
 
 
 
@@ -145,13 +181,151 @@ _GAMESTATE = _descriptor.Descriptor(
   serialized_end=208,
 )
 
+
+_LOGINPETITION = _descriptor.Descriptor(
+  name='LoginPetition',
+  full_name='PnD.LoginPetition',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='nick', full_name='PnD.LoginPetition.nick', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=210,
+  serialized_end=239,
+)
+
+
+_LOGINRESPONSE = _descriptor.Descriptor(
+  name='LoginResponse',
+  full_name='PnD.LoginResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='assignedId', full_name='PnD.LoginResponse.assignedId', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=241,
+  serialized_end=276,
+)
+
+
+_HEADER = _descriptor.Descriptor(
+  name='Header',
+  full_name='PnD.Header',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='msgID', full_name='PnD.Header.msgID', index=0,
+      number=1, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=278,
+  serialized_end=317,
+)
+
+
+_INPUT = _descriptor.Descriptor(
+  name='Input',
+  full_name='PnD.Input',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='id', full_name='PnD.Input.id', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='direction', full_name='PnD.Input.direction', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=319,
+  serialized_end=372,
+)
+
 _SNAKE.fields_by_name['body'].message_type = _VECTOR2D
 _SNAKE.fields_by_name['direction'].message_type = _VECTOR2D
 _GAMESTATE.fields_by_name['fruit'].message_type = _VECTOR2D
 _GAMESTATE.fields_by_name['players'].message_type = _SNAKE
+_HEADER.fields_by_name['msgID'].enum_type = _MESSAGEID
+_INPUT.fields_by_name['direction'].message_type = _VECTOR2D
 DESCRIPTOR.message_types_by_name['Vector2D'] = _VECTOR2D
 DESCRIPTOR.message_types_by_name['Snake'] = _SNAKE
 DESCRIPTOR.message_types_by_name['GameState'] = _GAMESTATE
+DESCRIPTOR.message_types_by_name['LoginPetition'] = _LOGINPETITION
+DESCRIPTOR.message_types_by_name['LoginResponse'] = _LOGINRESPONSE
+DESCRIPTOR.message_types_by_name['Header'] = _HEADER
+DESCRIPTOR.message_types_by_name['Input'] = _INPUT
+DESCRIPTOR.enum_types_by_name['MessageID'] = _MESSAGEID
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 Vector2D = _reflection.GeneratedProtocolMessageType('Vector2D', (_message.Message,), dict(
@@ -174,6 +348,34 @@ GameState = _reflection.GeneratedProtocolMessageType('GameState', (_message.Mess
   # @@protoc_insertion_point(class_scope:PnD.GameState)
   ))
 _sym_db.RegisterMessage(GameState)
+
+LoginPetition = _reflection.GeneratedProtocolMessageType('LoginPetition', (_message.Message,), dict(
+  DESCRIPTOR = _LOGINPETITION,
+  __module__ = 'snake_pb2'
+  # @@protoc_insertion_point(class_scope:PnD.LoginPetition)
+  ))
+_sym_db.RegisterMessage(LoginPetition)
+
+LoginResponse = _reflection.GeneratedProtocolMessageType('LoginResponse', (_message.Message,), dict(
+  DESCRIPTOR = _LOGINRESPONSE,
+  __module__ = 'snake_pb2'
+  # @@protoc_insertion_point(class_scope:PnD.LoginResponse)
+  ))
+_sym_db.RegisterMessage(LoginResponse)
+
+Header = _reflection.GeneratedProtocolMessageType('Header', (_message.Message,), dict(
+  DESCRIPTOR = _HEADER,
+  __module__ = 'snake_pb2'
+  # @@protoc_insertion_point(class_scope:PnD.Header)
+  ))
+_sym_db.RegisterMessage(Header)
+
+Input = _reflection.GeneratedProtocolMessageType('Input', (_message.Message,), dict(
+  DESCRIPTOR = _INPUT,
+  __module__ = 'snake_pb2'
+  # @@protoc_insertion_point(class_scope:PnD.Input)
+  ))
+_sym_db.RegisterMessage(Input)
 
 
 # @@protoc_insertion_point(module_scope)
