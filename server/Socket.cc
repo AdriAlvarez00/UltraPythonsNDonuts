@@ -1,8 +1,12 @@
 #include <string.h>
 #include <sys/socket.h>
+#include <google/protobuf/io/zero_copy_stream_impl_lite.h>
 
 #include "Serializable.h"
 #include "Socket.h"
+#include "snake.pb.h"
+
+using namespace google::protobuf::io;
 
 Socket::Socket(const char * address, const char * port):sd(-1)
 {
@@ -30,7 +34,21 @@ Socket::Socket(const char * address, const char * port):sd(-1)
 	sa_len = result->ai_addrlen;
 }
 
-int Socket::recv(Serializable<google::protobuf::Message> &obj, Socket * &sock)
+Header Socket::recvHeader(Socket * &sock){
+    char buf[4];
+    google::protobuf::uint32 sz;
+    google::protobuf::io::ArrayInputStream ais(buf,4);
+    CodedInputStream cis(&ais);
+    cis.ReadVarint32(&sz);
+    
+    char* hdbuf = new char[sz];
+    int rc = ::recv(sd,hdbuf,sz,0);
+    Header h;
+    h.from_bin(hdbuf);
+    return h;
+}
+
+int Socket::recvObj(Serializable<google::protobuf::Message> &obj, Socket * &sock)
 {
     struct sockaddr sa;
     socklen_t sa_len = sizeof(struct sockaddr);
@@ -56,10 +74,23 @@ int Socket::recv(Serializable<google::protobuf::Message> &obj, Socket * &sock)
 
 int Socket::send(Serializable<google::protobuf::Message>& obj, const Socket& sock)
 {
-    //Serializar el objeto
+    //Creamos la cabecera
+    Header header(PnD::MessageID::GAMEUPDATE);//TODO getID
     obj.to_bin();
+    int sz = header.size()+4+obj.size();
+
+    char* pkg = new char[sz];
+    google::protobuf::io::ArrayOutputStream aos(pkg,sz);
+
+    CodedOutputStream *cos= new CodedOutputStream(&aos);
+    cos->WriteVarint32(header.size());
+    cos->WriteString(header.data());
+    cos->WriteString(obj.data());
+    
+
+    //Serializar el objeto
     //Enviar el objeto binario a sock usando el socket sd
-    int rc = sendto(sd,obj.data().c_str(),obj.size(),0,&sock.sa,sock.sa_len);
+    int rc = sendto(sd,(void*)pkg,sz,0,&sock.sa,sock.sa_len);
     return (rc!=-1)?0:-1;
 }
 

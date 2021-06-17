@@ -4,6 +4,7 @@
 #include <google/protobuf/any.h>
 #include <stdlib.h>
 #include <google/protobuf/message.h>
+#include "snake.pb.h"
 
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -92,12 +93,18 @@ public:
         return _size;
     }
 
+    PnD::MessageID getID(){
+        return id;
+    }
+
 protected:
     std::string _data;
 
     int32_t _size;
     
     T* _message;
+
+    PnD::MessageID id;
 };
 
 // -----------------------------------------------------------------------------

@@ -31,7 +31,7 @@ enum MessageID{
 	GAMEUPDATE = 3;
 }
 message Header{
-	MessageID type=1;
+	MessageID msgID=1;
 }
 message Input{
 	int32 id=1;

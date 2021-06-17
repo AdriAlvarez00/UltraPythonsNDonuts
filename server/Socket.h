@@ -11,6 +11,8 @@
 #include <ostream>
 #include <google/protobuf/message.h>
 
+#include "SnakeGames.h"
+
 // -----------------------------------------------------------------------------
 // Definiciones adelantadas
 // -----------------------------------------------------------------------------
@@ -72,6 +74,12 @@ public:
     virtual ~Socket(){};
 
     /**
+     * 
+     * 
+    */
+   Header recvHeader(Socket * &sock);
+
+    /**
      *  Recibe un mensaje de aplicación
      *
      *    @param obj que recibirá los datos de la red. Se usará para la
@@ -82,13 +90,13 @@ public:
      *
      *    @return 0 en caso de éxito o -1 si error (cerrar conexión)
      */
-    int recv(Serializable<google::protobuf::Message> &obj, Socket * &sock);
+    int recvObj(Serializable<google::protobuf::Message> &obj, Socket * &sock);
 
     int recv(Serializable<google::protobuf::Message> &obj) //Descarta los datos del otro extremo
     {
         Socket * s = 0;
 
-        return recv(obj, s);
+        return recvObj(obj, s);
     }
 
     /**

@@ -29,6 +29,7 @@
 #include <google/protobuf/message.h>
 #include <google/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
+#include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
 // @@protoc_insertion_point(includes)
 #define PROTOBUF_INTERNAL_EXPORT_protobuf_snake_2eproto 
@@ -38,7 +39,7 @@ namespace protobuf_snake_2eproto {
 struct TableStruct {
   static const ::google::protobuf::internal::ParseTableField entries[];
   static const ::google::protobuf::internal::AuxillaryParseTableField aux[];
-  static const ::google::protobuf::internal::ParseTable schema[3];
+  static const ::google::protobuf::internal::ParseTable schema[7];
   static const ::google::protobuf::internal::FieldMetadata field_metadata[];
   static const ::google::protobuf::internal::SerializationTable serialization_table[];
   static const ::google::protobuf::uint32 offsets[];
@@ -49,6 +50,18 @@ namespace PnD {
 class GameState;
 class GameStateDefaultTypeInternal;
 extern GameStateDefaultTypeInternal _GameState_default_instance_;
+class Header;
+class HeaderDefaultTypeInternal;
+extern HeaderDefaultTypeInternal _Header_default_instance_;
+class Input;
+class InputDefaultTypeInternal;
+extern InputDefaultTypeInternal _Input_default_instance_;
+class LoginPetition;
+class LoginPetitionDefaultTypeInternal;
+extern LoginPetitionDefaultTypeInternal _LoginPetition_default_instance_;
+class LoginResponse;
+class LoginResponseDefaultTypeInternal;
+extern LoginResponseDefaultTypeInternal _LoginResponse_default_instance_;
 class Snake;
 class SnakeDefaultTypeInternal;
 extern SnakeDefaultTypeInternal _Snake_default_instance_;
@@ -59,12 +72,39 @@ extern Vector2DDefaultTypeInternal _Vector2D_default_instance_;
 namespace google {
 namespace protobuf {
 template<> ::PnD::GameState* Arena::CreateMaybeMessage<::PnD::GameState>(Arena*);
+template<> ::PnD::Header* Arena::CreateMaybeMessage<::PnD::Header>(Arena*);
+template<> ::PnD::Input* Arena::CreateMaybeMessage<::PnD::Input>(Arena*);
+template<> ::PnD::LoginPetition* Arena::CreateMaybeMessage<::PnD::LoginPetition>(Arena*);
+template<> ::PnD::LoginResponse* Arena::CreateMaybeMessage<::PnD::LoginResponse>(Arena*);
 template<> ::PnD::Snake* Arena::CreateMaybeMessage<::PnD::Snake>(Arena*);
 template<> ::PnD::Vector2D* Arena::CreateMaybeMessage<::PnD::Vector2D>(Arena*);
 }  // namespace protobuf
 }  // namespace google
 namespace PnD {
 
+enum MessageID {
+  LOGINPETITION = 0,
+  LOGINRESPONSE = 1,
+  GAMESTART = 2,
+  GAMEUPDATE = 3,
+  MessageID_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
+  MessageID_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
+};
+bool MessageID_IsValid(int value);
+const MessageID MessageID_MIN = LOGINPETITION;
+const MessageID MessageID_MAX = GAMEUPDATE;
+const int MessageID_ARRAYSIZE = MessageID_MAX + 1;
+
+const ::google::protobuf::EnumDescriptor* MessageID_descriptor();
+inline const ::std::string& MessageID_Name(MessageID value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    MessageID_descriptor(), value);
+}
+inline bool MessageID_Parse(
+    const ::std::string& name, MessageID* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<MessageID>(
+    MessageID_descriptor(), name, value);
+}
 // ===================================================================
 
 class Vector2D : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:PnD.Vector2D) */ {
@@ -426,6 +466,439 @@ class GameState : public ::google::protobuf::Message /* @@protoc_insertion_point
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
   friend struct ::protobuf_snake_2eproto::TableStruct;
 };
+// -------------------------------------------------------------------
+
+class LoginPetition : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:PnD.LoginPetition) */ {
+ public:
+  LoginPetition();
+  virtual ~LoginPetition();
+
+  LoginPetition(const LoginPetition& from);
+
+  inline LoginPetition& operator=(const LoginPetition& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  LoginPetition(LoginPetition&& from) noexcept
+    : LoginPetition() {
+    *this = ::std::move(from);
+  }
+
+  inline LoginPetition& operator=(LoginPetition&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const LoginPetition& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const LoginPetition* internal_default_instance() {
+    return reinterpret_cast<const LoginPetition*>(
+               &_LoginPetition_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    3;
+
+  void Swap(LoginPetition* other);
+  friend void swap(LoginPetition& a, LoginPetition& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline LoginPetition* New() const final {
+    return CreateMaybeMessage<LoginPetition>(NULL);
+  }
+
+  LoginPetition* New(::google::protobuf::Arena* arena) const final {
+    return CreateMaybeMessage<LoginPetition>(arena);
+  }
+  void CopyFrom(const ::google::protobuf::Message& from) final;
+  void MergeFrom(const ::google::protobuf::Message& from) final;
+  void CopyFrom(const LoginPetition& from);
+  void MergeFrom(const LoginPetition& from);
+  void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) final;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const final;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(LoginPetition* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // string nick = 1;
+  void clear_nick();
+  static const int kNickFieldNumber = 1;
+  const ::std::string& nick() const;
+  void set_nick(const ::std::string& value);
+  #if LANG_CXX11
+  void set_nick(::std::string&& value);
+  #endif
+  void set_nick(const char* value);
+  void set_nick(const char* value, size_t size);
+  ::std::string* mutable_nick();
+  ::std::string* release_nick();
+  void set_allocated_nick(::std::string* nick);
+
+  // @@protoc_insertion_point(class_scope:PnD.LoginPetition)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::ArenaStringPtr nick_;
+  mutable ::google::protobuf::internal::CachedSize _cached_size_;
+  friend struct ::protobuf_snake_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class LoginResponse : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:PnD.LoginResponse) */ {
+ public:
+  LoginResponse();
+  virtual ~LoginResponse();
+
+  LoginResponse(const LoginResponse& from);
+
+  inline LoginResponse& operator=(const LoginResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  LoginResponse(LoginResponse&& from) noexcept
+    : LoginResponse() {
+    *this = ::std::move(from);
+  }
+
+  inline LoginResponse& operator=(LoginResponse&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const LoginResponse& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const LoginResponse* internal_default_instance() {
+    return reinterpret_cast<const LoginResponse*>(
+               &_LoginResponse_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    4;
+
+  void Swap(LoginResponse* other);
+  friend void swap(LoginResponse& a, LoginResponse& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline LoginResponse* New() const final {
+    return CreateMaybeMessage<LoginResponse>(NULL);
+  }
+
+  LoginResponse* New(::google::protobuf::Arena* arena) const final {
+    return CreateMaybeMessage<LoginResponse>(arena);
+  }
+  void CopyFrom(const ::google::protobuf::Message& from) final;
+  void MergeFrom(const ::google::protobuf::Message& from) final;
+  void CopyFrom(const LoginResponse& from);
+  void MergeFrom(const LoginResponse& from);
+  void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) final;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const final;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(LoginResponse* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // int32 assignedId = 1;
+  void clear_assignedid();
+  static const int kAssignedIdFieldNumber = 1;
+  ::google::protobuf::int32 assignedid() const;
+  void set_assignedid(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:PnD.LoginResponse)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::int32 assignedid_;
+  mutable ::google::protobuf::internal::CachedSize _cached_size_;
+  friend struct ::protobuf_snake_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class Header : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:PnD.Header) */ {
+ public:
+  Header();
+  virtual ~Header();
+
+  Header(const Header& from);
+
+  inline Header& operator=(const Header& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  Header(Header&& from) noexcept
+    : Header() {
+    *this = ::std::move(from);
+  }
+
+  inline Header& operator=(Header&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Header& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const Header* internal_default_instance() {
+    return reinterpret_cast<const Header*>(
+               &_Header_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    5;
+
+  void Swap(Header* other);
+  friend void swap(Header& a, Header& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline Header* New() const final {
+    return CreateMaybeMessage<Header>(NULL);
+  }
+
+  Header* New(::google::protobuf::Arena* arena) const final {
+    return CreateMaybeMessage<Header>(arena);
+  }
+  void CopyFrom(const ::google::protobuf::Message& from) final;
+  void MergeFrom(const ::google::protobuf::Message& from) final;
+  void CopyFrom(const Header& from);
+  void MergeFrom(const Header& from);
+  void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) final;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const final;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(Header* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // .PnD.MessageID msgID = 1;
+  void clear_msgid();
+  static const int kMsgIDFieldNumber = 1;
+  ::PnD::MessageID msgid() const;
+  void set_msgid(::PnD::MessageID value);
+
+  // @@protoc_insertion_point(class_scope:PnD.Header)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  int msgid_;
+  mutable ::google::protobuf::internal::CachedSize _cached_size_;
+  friend struct ::protobuf_snake_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class Input : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:PnD.Input) */ {
+ public:
+  Input();
+  virtual ~Input();
+
+  Input(const Input& from);
+
+  inline Input& operator=(const Input& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  Input(Input&& from) noexcept
+    : Input() {
+    *this = ::std::move(from);
+  }
+
+  inline Input& operator=(Input&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Input& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const Input* internal_default_instance() {
+    return reinterpret_cast<const Input*>(
+               &_Input_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    6;
+
+  void Swap(Input* other);
+  friend void swap(Input& a, Input& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline Input* New() const final {
+    return CreateMaybeMessage<Input>(NULL);
+  }
+
+  Input* New(::google::protobuf::Arena* arena) const final {
+    return CreateMaybeMessage<Input>(arena);
+  }
+  void CopyFrom(const ::google::protobuf::Message& from) final;
+  void MergeFrom(const ::google::protobuf::Message& from) final;
+  void CopyFrom(const Input& from);
+  void MergeFrom(const Input& from);
+  void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) final;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const final;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(Input* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // .PnD.Vector2D direction = 2;
+  bool has_direction() const;
+  void clear_direction();
+  static const int kDirectionFieldNumber = 2;
+  private:
+  const ::PnD::Vector2D& _internal_direction() const;
+  public:
+  const ::PnD::Vector2D& direction() const;
+  ::PnD::Vector2D* release_direction();
+  ::PnD::Vector2D* mutable_direction();
+  void set_allocated_direction(::PnD::Vector2D* direction);
+
+  // int32 id = 1;
+  void clear_id();
+  static const int kIdFieldNumber = 1;
+  ::google::protobuf::int32 id() const;
+  void set_id(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:PnD.Input)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::PnD::Vector2D* direction_;
+  ::google::protobuf::int32 id_;
+  mutable ::google::protobuf::internal::CachedSize _cached_size_;
+  friend struct ::protobuf_snake_2eproto::TableStruct;
+};
 // ===================================================================
 
 
@@ -655,9 +1128,182 @@ GameState::players() const {
   return players_;
 }
 
+// -------------------------------------------------------------------
+
+// LoginPetition
+
+// string nick = 1;
+inline void LoginPetition::clear_nick() {
+  nick_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& LoginPetition::nick() const {
+  // @@protoc_insertion_point(field_get:PnD.LoginPetition.nick)
+  return nick_.GetNoArena();
+}
+inline void LoginPetition::set_nick(const ::std::string& value) {
+  
+  nick_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:PnD.LoginPetition.nick)
+}
+#if LANG_CXX11
+inline void LoginPetition::set_nick(::std::string&& value) {
+  
+  nick_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:PnD.LoginPetition.nick)
+}
+#endif
+inline void LoginPetition::set_nick(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  nick_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:PnD.LoginPetition.nick)
+}
+inline void LoginPetition::set_nick(const char* value, size_t size) {
+  
+  nick_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:PnD.LoginPetition.nick)
+}
+inline ::std::string* LoginPetition::mutable_nick() {
+  
+  // @@protoc_insertion_point(field_mutable:PnD.LoginPetition.nick)
+  return nick_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* LoginPetition::release_nick() {
+  // @@protoc_insertion_point(field_release:PnD.LoginPetition.nick)
+  
+  return nick_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void LoginPetition::set_allocated_nick(::std::string* nick) {
+  if (nick != NULL) {
+    
+  } else {
+    
+  }
+  nick_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), nick);
+  // @@protoc_insertion_point(field_set_allocated:PnD.LoginPetition.nick)
+}
+
+// -------------------------------------------------------------------
+
+// LoginResponse
+
+// int32 assignedId = 1;
+inline void LoginResponse::clear_assignedid() {
+  assignedid_ = 0;
+}
+inline ::google::protobuf::int32 LoginResponse::assignedid() const {
+  // @@protoc_insertion_point(field_get:PnD.LoginResponse.assignedId)
+  return assignedid_;
+}
+inline void LoginResponse::set_assignedid(::google::protobuf::int32 value) {
+  
+  assignedid_ = value;
+  // @@protoc_insertion_point(field_set:PnD.LoginResponse.assignedId)
+}
+
+// -------------------------------------------------------------------
+
+// Header
+
+// .PnD.MessageID msgID = 1;
+inline void Header::clear_msgid() {
+  msgid_ = 0;
+}
+inline ::PnD::MessageID Header::msgid() const {
+  // @@protoc_insertion_point(field_get:PnD.Header.msgID)
+  return static_cast< ::PnD::MessageID >(msgid_);
+}
+inline void Header::set_msgid(::PnD::MessageID value) {
+  
+  msgid_ = value;
+  // @@protoc_insertion_point(field_set:PnD.Header.msgID)
+}
+
+// -------------------------------------------------------------------
+
+// Input
+
+// int32 id = 1;
+inline void Input::clear_id() {
+  id_ = 0;
+}
+inline ::google::protobuf::int32 Input::id() const {
+  // @@protoc_insertion_point(field_get:PnD.Input.id)
+  return id_;
+}
+inline void Input::set_id(::google::protobuf::int32 value) {
+  
+  id_ = value;
+  // @@protoc_insertion_point(field_set:PnD.Input.id)
+}
+
+// .PnD.Vector2D direction = 2;
+inline bool Input::has_direction() const {
+  return this != internal_default_instance() && direction_ != NULL;
+}
+inline void Input::clear_direction() {
+  if (GetArenaNoVirtual() == NULL && direction_ != NULL) {
+    delete direction_;
+  }
+  direction_ = NULL;
+}
+inline const ::PnD::Vector2D& Input::_internal_direction() const {
+  return *direction_;
+}
+inline const ::PnD::Vector2D& Input::direction() const {
+  const ::PnD::Vector2D* p = direction_;
+  // @@protoc_insertion_point(field_get:PnD.Input.direction)
+  return p != NULL ? *p : *reinterpret_cast<const ::PnD::Vector2D*>(
+      &::PnD::_Vector2D_default_instance_);
+}
+inline ::PnD::Vector2D* Input::release_direction() {
+  // @@protoc_insertion_point(field_release:PnD.Input.direction)
+  
+  ::PnD::Vector2D* temp = direction_;
+  direction_ = NULL;
+  return temp;
+}
+inline ::PnD::Vector2D* Input::mutable_direction() {
+  
+  if (direction_ == NULL) {
+    auto* p = CreateMaybeMessage<::PnD::Vector2D>(GetArenaNoVirtual());
+    direction_ = p;
+  }
+  // @@protoc_insertion_point(field_mutable:PnD.Input.direction)
+  return direction_;
+}
+inline void Input::set_allocated_direction(::PnD::Vector2D* direction) {
+  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == NULL) {
+    delete direction_;
+  }
+  if (direction) {
+    ::google::protobuf::Arena* submessage_arena = NULL;
+    if (message_arena != submessage_arena) {
+      direction = ::google::protobuf::internal::GetOwnedMessage(
+          message_arena, direction, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  direction_ = direction;
+  // @@protoc_insertion_point(field_set_allocated:PnD.Input.direction)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
@@ -666,6 +1312,18 @@ GameState::players() const {
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace PnD
+
+namespace google {
+namespace protobuf {
+
+template <> struct is_proto_enum< ::PnD::MessageID> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::PnD::MessageID>() {
+  return ::PnD::MessageID_descriptor();
+}
+
+}  // namespace protobuf
+}  // namespace google
 
 // @@protoc_insertion_point(global_scope)
 

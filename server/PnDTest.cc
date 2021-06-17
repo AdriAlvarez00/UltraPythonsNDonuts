@@ -4,6 +4,7 @@
 #include "fstream"
 #include <fstream>
 #include <stdlib.h> 
+#include "Socket.h"
 
 
 #define GRID_SIZE 20
@@ -61,8 +62,13 @@ int main(){
 	bool running=true;
 	Vector2 fruit(5,5);
 	draw(serpi,fruit);
+	Socket sock("127.0.0.1","55555");
+	sock.bind();
+	Header header;
 	int i = 0;
+
 	while(running){
+		//header = sock.recvHeader(sock);
 		char in = getchar();
 		char enter = getchar();
 		switch (in)

@@ -4,6 +4,22 @@
 #include <iostream>
 #include <deque>
 
+class Header : public Serializable<PnD::Header>{
+	public:
+	PnD::MessageID id;
+	virtual void fill_message(PnD::Header* msg) override{
+		msg->set_msgid(id);
+	}
+	virtual int from_message(PnD::Header* msg) override{
+		id = msg->msgid();
+		return 0;
+	}
+
+	Header():id(PnD::MessageID::GAMESTART){}
+	Header(PnD::MessageID i):id(i){}
+
+};
+
 class Vector2 : public Serializable<PnD::Vector2D>{
 	protected:
 		int x;
