@@ -189,7 +189,7 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::PnD::Snake, id_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::PnD::Snake, playerid_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::PnD::Snake, body_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::PnD::Snake, direction_),
   ~0u,  // no _has_bits_
@@ -267,20 +267,21 @@ void AddDescriptorsImpl() {
   InitDefaults();
   static const char descriptor[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
       "\n\013snake.proto\022\003PnD\" \n\010Vector2D\022\t\n\001x\030\001 \001("
-      "\005\022\t\n\001y\030\002 \001(\005\"R\n\005Snake\022\n\n\002id\030\001 \001(\005\022\033\n\004bod"
-      "y\030\002 \003(\0132\r.PnD.Vector2D\022 \n\tdirection\030\003 \001("
-      "\0132\r.PnD.Vector2D\"F\n\tGameState\022\034\n\005fruit\030\001"
-      " \001(\0132\r.PnD.Vector2D\022\033\n\007players\030\002 \003(\0132\n.P"
-      "nD.Snake\"\035\n\rLoginPetition\022\014\n\004nick\030\001 \001(\t\""
-      "#\n\rLoginResponse\022\022\n\nassignedId\030\001 \001(\005\"\'\n\006"
-      "Header\022\035\n\005msgID\030\001 \001(\0162\016.PnD.MessageID\"5\n"
-      "\005Input\022\n\n\002id\030\001 \001(\005\022 \n\tdirection\030\002 \001(\0132\r."
-      "PnD.Vector2D*b\n\tMessageID\022\021\n\rLOGINPETITI"
-      "ON\020\000\022\021\n\rLOGINRESPONSE\020\001\022\r\n\tGAMESTART\020\002\022\016"
-      "\n\nGAMEUPDATE\020\003\022\020\n\014INPUTMESSAGE\020\004b\006proto3"
+      "\005\022\t\n\001y\030\002 \001(\005\"X\n\005Snake\022\020\n\010playerID\030\001 \001(\005\022"
+      "\033\n\004body\030\002 \003(\0132\r.PnD.Vector2D\022 \n\tdirectio"
+      "n\030\003 \001(\0132\r.PnD.Vector2D\"F\n\tGameState\022\034\n\005f"
+      "ruit\030\001 \001(\0132\r.PnD.Vector2D\022\033\n\007players\030\002 \003"
+      "(\0132\n.PnD.Snake\"\035\n\rLoginPetition\022\014\n\004nick\030"
+      "\001 \001(\t\"#\n\rLoginResponse\022\022\n\nassignedId\030\001 \001"
+      "(\005\"\'\n\006Header\022\035\n\005msgID\030\001 \001(\0162\016.PnD.Messag"
+      "eID\"5\n\005Input\022\n\n\002id\030\001 \001(\005\022 \n\tdirection\030\002 "
+      "\001(\0132\r.PnD.Vector2D*b\n\tMessageID\022\021\n\rLOGIN"
+      "PETITION\020\000\022\021\n\rLOGINRESPONSE\020\001\022\r\n\tGAMESTA"
+      "RT\020\002\022\016\n\nGAMEUPDATE\020\003\022\020\n\014INPUTMESSAGE\020\004b\006"
+      "proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 480);
+      descriptor, 486);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "snake.proto", &protobuf_RegisterTypes);
 }
@@ -587,7 +588,7 @@ void Snake::InitAsDefaultInstance() {
       ::PnD::Vector2D::internal_default_instance());
 }
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int Snake::kIdFieldNumber;
+const int Snake::kPlayerIDFieldNumber;
 const int Snake::kBodyFieldNumber;
 const int Snake::kDirectionFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
@@ -609,14 +610,14 @@ Snake::Snake(const Snake& from)
   } else {
     direction_ = NULL;
   }
-  id_ = from.id_;
+  playerid_ = from.playerid_;
   // @@protoc_insertion_point(copy_constructor:PnD.Snake)
 }
 
 void Snake::SharedCtor() {
   ::memset(&direction_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&id_) -
-      reinterpret_cast<char*>(&direction_)) + sizeof(id_));
+      reinterpret_cast<char*>(&playerid_) -
+      reinterpret_cast<char*>(&direction_)) + sizeof(playerid_));
 }
 
 Snake::~Snake() {
@@ -653,7 +654,7 @@ void Snake::Clear() {
     delete direction_;
   }
   direction_ = NULL;
-  id_ = 0;
+  playerid_ = 0;
   _internal_metadata_.Clear();
 }
 
@@ -667,14 +668,14 @@ bool Snake::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // int32 id = 1;
+      // int32 playerID = 1;
       case 1: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
             static_cast< ::google::protobuf::uint8>(8u /* 8 & 0xFF */)) {
 
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
-                 input, &id_)));
+                 input, &playerid_)));
         } else {
           goto handle_unusual;
         }
@@ -731,9 +732,9 @@ void Snake::SerializeWithCachedSizes(
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // int32 id = 1;
-  if (this->id() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->id(), output);
+  // int32 playerID = 1;
+  if (this->playerid() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->playerid(), output);
   }
 
   // repeated .PnD.Vector2D body = 2;
@@ -765,9 +766,9 @@ void Snake::SerializeWithCachedSizes(
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // int32 id = 1;
-  if (this->id() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->id(), target);
+  // int32 playerID = 1;
+  if (this->playerid() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->playerid(), target);
   }
 
   // repeated .PnD.Vector2D body = 2;
@@ -820,11 +821,11 @@ size_t Snake::ByteSizeLong() const {
         *direction_);
   }
 
-  // int32 id = 1;
-  if (this->id() != 0) {
+  // int32 playerID = 1;
+  if (this->playerid() != 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::Int32Size(
-        this->id());
+        this->playerid());
   }
 
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
@@ -858,8 +859,8 @@ void Snake::MergeFrom(const Snake& from) {
   if (from.has_direction()) {
     mutable_direction()->::PnD::Vector2D::MergeFrom(from.direction());
   }
-  if (from.id() != 0) {
-    set_id(from.id());
+  if (from.playerid() != 0) {
+    set_playerid(from.playerid());
   }
 }
 
@@ -889,7 +890,7 @@ void Snake::InternalSwap(Snake* other) {
   using std::swap;
   CastToBase(&body_)->InternalSwap(CastToBase(&other->body_));
   swap(direction_, other->direction_);
-  swap(id_, other->id_);
+  swap(playerid_, other->playerid_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
 }
 

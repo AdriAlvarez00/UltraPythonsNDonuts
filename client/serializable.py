@@ -9,7 +9,6 @@ class Serializable:
     def get_message(self):
         pass
     def __init__(self):
-        print('init serializable')
         self._data = None
         self._size = -1
         self._msg = None
@@ -22,14 +21,16 @@ class Serializable:
         self._msg.ParseFromString(bin)
         self._data = bin
         self._size = self._msg.ByteSize()
-        self.from_msg(self._msg)
+        self.from_message(self._msg)
 
 class Header(Serializable):
     def __init__(self,id):
-        self.id = id
+        super().__init__()
+        self._msgid = id
+        self._msg = serialMsg.Header()
     def get_message(self):
         msg = serialMsg.Header()
-        msg.msgID = self.id
+        msg.msgID = self._msgid
         return msg
     def from_message(self,msg):
-        self.id = msg.msgID
+        self._msgid = msg.msgID

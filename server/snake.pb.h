@@ -329,11 +329,11 @@ class Snake : public ::google::protobuf::Message /* @@protoc_insertion_point(cla
   ::PnD::Vector2D* mutable_direction();
   void set_allocated_direction(::PnD::Vector2D* direction);
 
-  // int32 id = 1;
-  void clear_id();
-  static const int kIdFieldNumber = 1;
-  ::google::protobuf::int32 id() const;
-  void set_id(::google::protobuf::int32 value);
+  // int32 playerID = 1;
+  void clear_playerid();
+  static const int kPlayerIDFieldNumber = 1;
+  ::google::protobuf::int32 playerid() const;
+  void set_playerid(::google::protobuf::int32 value);
 
   // @@protoc_insertion_point(class_scope:PnD.Snake)
  private:
@@ -341,7 +341,7 @@ class Snake : public ::google::protobuf::Message /* @@protoc_insertion_point(cla
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::RepeatedPtrField< ::PnD::Vector2D > body_;
   ::PnD::Vector2D* direction_;
-  ::google::protobuf::int32 id_;
+  ::google::protobuf::int32 playerid_;
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
   friend struct ::protobuf_snake_2eproto::TableStruct;
 };
@@ -943,18 +943,18 @@ inline void Vector2D::set_y(::google::protobuf::int32 value) {
 
 // Snake
 
-// int32 id = 1;
-inline void Snake::clear_id() {
-  id_ = 0;
+// int32 playerID = 1;
+inline void Snake::clear_playerid() {
+  playerid_ = 0;
 }
-inline ::google::protobuf::int32 Snake::id() const {
-  // @@protoc_insertion_point(field_get:PnD.Snake.id)
-  return id_;
+inline ::google::protobuf::int32 Snake::playerid() const {
+  // @@protoc_insertion_point(field_get:PnD.Snake.playerID)
+  return playerid_;
 }
-inline void Snake::set_id(::google::protobuf::int32 value) {
+inline void Snake::set_playerid(::google::protobuf::int32 value) {
   
-  id_ = value;
-  // @@protoc_insertion_point(field_set:PnD.Snake.id)
+  playerid_ = value;
+  // @@protoc_insertion_point(field_set:PnD.Snake.playerID)
 }
 
 // repeated .PnD.Vector2D body = 2;

@@ -17,8 +17,8 @@ int Vector2::from_bin(google::protobuf::io::CodedInputStream& cis){
 
 void Snake::to_bin(){
 	
-	_msg.set_id(id);
-	std::cout << "filled id: " << _msg.id() << std::endl;
+	_msg.set_playerid(id);
+	std::cout << "filled id: " << _msg.playerid() << std::endl;
 	_msg.mutable_direction()->set_x(dir.getX());
 	_msg.mutable_direction()->set_y(dir.getY());
 	std::cout << _msg.direction().x() << " " << _msg.direction().y() << std::endl;
@@ -38,8 +38,8 @@ void Snake::to_bin(){
 
 int Snake::from_bin(google::protobuf::io::CodedInputStream& cis){
 	_msg.ParseFromCodedStream(&cis);
-	id = _msg.id();
-	std::cout << "leido id " << _msg.id() << std::endl;
+	id = _msg.playerid();
+	std::cout << "leido id " << _msg.playerid() << std::endl;
 	std::cout << "inX: " << _msg.mutable_direction()->x() << " inY: " << _msg.mutable_direction()->y() << std::endl;
 	dir = Vector2(_msg.direction().x(),_msg.direction().y());
 	//TODO mejorar esto, teniendo en cuenta que las serpientes solo pueden crecer

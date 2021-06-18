@@ -3,7 +3,7 @@
 
 
 int main(int argc,char** argv){
-    Socket sock("127.0.0.1","55555");
+    Socket sock("127.0.0.1","22222");
     int id=0;
     if(argc == 2)
         id = atoi(argv[1]);

@@ -73,42 +73,43 @@ int main()
 
 	Socket *msgSock = new Socket(sock);
 
-	while (true)
-	{
-		std::cout << "Waiting for next msg" << std::endl;
-		sock.recvHeader(msgSock, &header);
-		std::cout << "received: " << header.getID() << std::endl;
-		sock.loadObj(serpi, msgSock);
-		//std::cout << "llego una serpi con id: " << serpi.getSnakeID() << std::endl;
-		serpi.print(std::cout);
-	}
+	// while (true)
+	// {
+	// 	std::cout << "Waiting for next msg" << std::endl;
+	// 	//sock.recvHeader(msgSock, &header);
+	// 	//std::cout << "received: " << header.getID() << std::endl;
+	// 	sock.loadObj(serpi, msgSock);
+	// 	//std::cout << "llego una serpi con id: " << serpi.getSnakeID() << std::endl;
+	// 	serpi.print(std::cout);
+	// }
 
 	draw(serpi, fruit);
 	while (running)
 	{
-		//header = sock.recvHeader(sock);
-		char in = getchar();
-		char enter = getchar();
-		switch (in)
-		{
-		case 'a':
-			serpi.setDir(Vector2(-1, 0));
-			break;
-		case 'd':
-			serpi.setDir(Vector2(1, 0));
-			break;
-		case 'w':
-			serpi.setDir(Vector2(0, -1));
-			break;
-		case 's':
-			serpi.setDir(Vector2(0, 1));
-			break;
-		case 'b':
-			running = false;
-			break;
-		default:
-			break;
-		}
+		sock.recvHeader(msgSock, &header);
+		sock.loadObj(serpi, msgSock);
+		// char in = getchar();
+		// char enter = getchar();
+		// switch (in)
+		// {
+		// case 'a':
+		// 	serpi.setDir(Vector2(-1, 0));
+		// 	break;
+		// case 'd':
+		// 	serpi.setDir(Vector2(1, 0));
+		// 	break;
+		// case 'w':
+		// 	serpi.setDir(Vector2(0, -1));
+		// 	break;
+		// case 's':
+		// 	serpi.setDir(Vector2(0, 1));
+		// 	break;
+		// case 'b':
+		// 	running = false;
+		// 	break;
+		// default:
+		// 	break;
+		// }
 
 		if (serpi.getHead() == fruit)
 			serpi.increaseLength(5);

@@ -7,7 +7,7 @@ message Vector2D{
 	int32 y=2;
 }
 message Snake{
-	int32 id=1;
+	int32 playerID=1;
 	repeated Vector2D body=2;	
 	Vector2D direction=3;
 }

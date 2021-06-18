@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='PnD',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x0bsnake.proto\x12\x03PnD\" \n\x08Vector2D\x12\t\n\x01x\x18\x01 \x01(\x05\x12\t\n\x01y\x18\x02 \x01(\x05\"R\n\x05Snake\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x1b\n\x04\x62ody\x18\x02 \x03(\x0b\x32\r.PnD.Vector2D\x12 \n\tdirection\x18\x03 \x01(\x0b\x32\r.PnD.Vector2D\"F\n\tGameState\x12\x1c\n\x05\x66ruit\x18\x01 \x01(\x0b\x32\r.PnD.Vector2D\x12\x1b\n\x07players\x18\x02 \x03(\x0b\x32\n.PnD.Snake\"\x1d\n\rLoginPetition\x12\x0c\n\x04nick\x18\x01 \x01(\t\"#\n\rLoginResponse\x12\x12\n\nassignedId\x18\x01 \x01(\x05\"\'\n\x06Header\x12\x1d\n\x05msgID\x18\x01 \x01(\x0e\x32\x0e.PnD.MessageID\"5\n\x05Input\x12\n\n\x02id\x18\x01 \x01(\x05\x12 \n\tdirection\x18\x02 \x01(\x0b\x32\r.PnD.Vector2D*b\n\tMessageID\x12\x11\n\rLOGINPETITION\x10\x00\x12\x11\n\rLOGINRESPONSE\x10\x01\x12\r\n\tGAMESTART\x10\x02\x12\x0e\n\nGAMEUPDATE\x10\x03\x12\x10\n\x0cINPUTMESSAGE\x10\x04\x62\x06proto3')
+  serialized_pb=_b('\n\x0bsnake.proto\x12\x03PnD\" \n\x08Vector2D\x12\t\n\x01x\x18\x01 \x01(\x05\x12\t\n\x01y\x18\x02 \x01(\x05\"X\n\x05Snake\x12\x10\n\x08playerID\x18\x01 \x01(\x05\x12\x1b\n\x04\x62ody\x18\x02 \x03(\x0b\x32\r.PnD.Vector2D\x12 \n\tdirection\x18\x03 \x01(\x0b\x32\r.PnD.Vector2D\"F\n\tGameState\x12\x1c\n\x05\x66ruit\x18\x01 \x01(\x0b\x32\r.PnD.Vector2D\x12\x1b\n\x07players\x18\x02 \x03(\x0b\x32\n.PnD.Snake\"\x1d\n\rLoginPetition\x12\x0c\n\x04nick\x18\x01 \x01(\t\"#\n\rLoginResponse\x12\x12\n\nassignedId\x18\x01 \x01(\x05\"\'\n\x06Header\x12\x1d\n\x05msgID\x18\x01 \x01(\x0e\x32\x0e.PnD.MessageID\"5\n\x05Input\x12\n\n\x02id\x18\x01 \x01(\x05\x12 \n\tdirection\x18\x02 \x01(\x0b\x32\r.PnD.Vector2D*b\n\tMessageID\x12\x11\n\rLOGINPETITION\x10\x00\x12\x11\n\rLOGINRESPONSE\x10\x01\x12\r\n\tGAMESTART\x10\x02\x12\x0e\n\nGAMEUPDATE\x10\x03\x12\x10\n\x0cINPUTMESSAGE\x10\x04\x62\x06proto3')
 )
 
 _MESSAGEID = _descriptor.EnumDescriptor(
@@ -52,8 +52,8 @@ _MESSAGEID = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=374,
-  serialized_end=472,
+  serialized_start=380,
+  serialized_end=478,
 )
 _sym_db.RegisterEnumDescriptor(_MESSAGEID)
 
@@ -112,7 +112,7 @@ _SNAKE = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='id', full_name='PnD.Snake.id', index=0,
+      name='playerID', full_name='PnD.Snake.playerID', index=0,
       number=1, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -145,7 +145,7 @@ _SNAKE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=54,
-  serialized_end=136,
+  serialized_end=142,
 )
 
 
@@ -182,8 +182,8 @@ _GAMESTATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=138,
-  serialized_end=208,
+  serialized_start=144,
+  serialized_end=214,
 )
 
 
@@ -213,8 +213,8 @@ _LOGINPETITION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=210,
-  serialized_end=239,
+  serialized_start=216,
+  serialized_end=245,
 )
 
 
@@ -244,8 +244,8 @@ _LOGINRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=241,
-  serialized_end=276,
+  serialized_start=247,
+  serialized_end=282,
 )
 
 
@@ -275,8 +275,8 @@ _HEADER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=278,
-  serialized_end=317,
+  serialized_start=284,
+  serialized_end=323,
 )
 
 
@@ -313,8 +313,8 @@ _INPUT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=319,
-  serialized_end=372,
+  serialized_start=325,
+  serialized_end=378,
 )
 
 _SNAKE.fields_by_name['body'].message_type = _VECTOR2D

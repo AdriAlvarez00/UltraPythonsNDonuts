@@ -42,8 +42,7 @@ left = Vector2(-1,0)
 right = Vector2(1,0)
 
 class Snake(Serializable):
-    def __init__(self):
-        print('init snake')
+    def __init__(self,id):
         self.length = SIZE_SNAKE
         # vector de las pociciones del cuerpo -> indice 0 es la cabeza
         self.positions = [Vector2(GRID_SIZE/2,GRID_SIZE/2)]
@@ -53,11 +52,12 @@ class Snake(Serializable):
         self.score = 0
         # este bool evita que la serpiente se pise a si misma al hacer buffering de input en el mismo frame 
         self.turned = False     # es dependiente de la implementación del juego, no se si será<necesario serializarlo 
-        self.id = -1;
+        self.id = id;
+        self._msg = serialMsg.Snake()
 
     def get_message(self):
         msg = serialMsg.Snake()
-        msg.id = self.id
+        msg.playerID = self.id
         msg.direction.x = int(self.direction.x)
         msg.direction.y = int(self.direction.y)
         i = 0
@@ -65,14 +65,16 @@ class Snake(Serializable):
             bodyPos = msg.body.add()
             bodyPos.x = int(b.x)
             bodyPos.y = int(b.y)
-            i = i+1
+            i = i+15
         return msg
-    def from_msg(self,msg):
-        self.id = msg.id
+    def from_message(self,msg):
+        print(f'loaded id {msg.playerID}')
+        self.id = msg.playerID
         self.direction = Vector2(msg.direction.x,msg.direction.y)
         self.positions.clear()
         for p in msg.body:
             self.positions.append(Vector2(p.x,p.y))
+        self.length = len(msg.body)
 
     def get_head_position(self):
         return self.positions[0]
@@ -144,10 +146,15 @@ class Snake(Serializable):
                     file.close()
                 elif event.key == pygame.K_u:
                     sock = gameSocket.GameSocket();
-                    sock.connect('127.0.0.1',55555)
+                    sock.connect('127.0.0.1',22222)
                     sock.send(self,serialMsg.MessageID.GAMEUPDATE)
                 elif event.key == pygame.K_r:
-                    print('recv')
+                    sock = gameSocket.GameSocket();
+                    sock.sock.bind(('127.0.0.1',22222))
+                    head, objStart = sock.recvHeader()
+                    print(head._msgid)
+                    sock.loadObject(self,objStart)
+                    
 
 
 
@@ -185,7 +192,7 @@ def drawGrid(surface):  # dibujamos el fondo
 
 class GameState():
     def __init__(self):
-        self.snakes = [Snake()]
+        self.snakes = [Snake(14)]
         self.food = Food()
         self.food.randomize_position(self.snakes[0])
     def update(self):
@@ -217,7 +224,7 @@ def main():
     surface = pygame.Surface(screen.get_size())
     surface = surface.convert()
 
-    snake = Snake()  # movidas del juego
+    snake = Snake(14)  # movidas del juego
     food = Food()
     food.randomize_position(snake)
 
