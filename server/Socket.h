@@ -10,6 +10,8 @@
 
 #include <ostream>
 #include <google/protobuf/message.h>
+#include "snake.pb.h"
+
 // -----------------------------------------------------------------------------
 // Definiciones adelantadas
 // -----------------------------------------------------------------------------
@@ -105,7 +107,7 @@ public:
      *
      *    @return 0 en caso de éxito o -1 si error
      */
-    int send(Serializable &obj, const Socket& sock);
+    int send(Serializable &obj, const Socket& sock, PnD::MessageID msgID);
 
     /**
      *  Enlaza el descriptor del socket a la dirección y puerto

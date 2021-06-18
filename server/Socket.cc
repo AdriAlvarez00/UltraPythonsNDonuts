@@ -6,6 +6,7 @@
 #include "Socket.h"
 #include "snake.pb.h"
 #include "SnakeGames.h"
+#include <fstream>
 
 using namespace google::protobuf::io;
 
@@ -73,15 +74,18 @@ int Socket::loadObj(Serializable &obj, Socket * &sock)
     auto lim = cis.PushLimit(sz);
     sample.from_bin(cis);
     cis.PopLimit(lim);
+    cis.ReadVarint32(&sz);
+    lim = cis.PushLimit(sz);
     obj.from_bin(cis);
+    cis.PopLimit(lim);
 
     return 0;
 }
 
-int Socket::send(Serializable& obj, const Socket& sock)
+int Socket::send(Serializable& obj, const Socket& sock,PnD::MessageID msgID)
 {
     //Creamos la cabecera
-    Header header(obj.getID());
+    Header header(msgID);
     header.to_bin();
     obj.to_bin();
     
@@ -89,7 +93,6 @@ int Socket::send(Serializable& obj, const Socket& sock)
 
     char* pkg = new char[sz];
     google::protobuf::io::ArrayOutputStream aos(pkg,sz);
-
     CodedOutputStream *cos= new CodedOutputStream(&aos);
     cos->WriteVarint32(header.size());
     cos->WriteString(header.data());
@@ -98,6 +101,9 @@ int Socket::send(Serializable& obj, const Socket& sock)
 
     //Serializar el objeto
     //Enviar el objeto binario a sock usando el socket sd
+    std::ofstream fileO;
+    fileO.open("snakeSock.data");
+    fileO.write(pkg,sz);
     int rc = sendto(sd,(void*)pkg,sz,0,&sock.sa,sock.sa_len);
     
     if(rc != -1)

@@ -53,17 +53,6 @@ int main()
 	// msg->SerializeToOstream(&file);
 	// file.close();
 
-	// fileIn.open("snake.data");
-	// std::string buf2;
-	// fileIn >> buf2;
-	// serpi.print(std::cout);
-	// std::cout << std::endl;
-	// Snake serpi2(2);
-	// PnD::Snake* aux = new PnD::Snake();
-	// aux->ParsePartialFromIstream(&fileIn);
-	// serpi2.from_message(aux);
-	// serpi2.print(std::cout);
-
 	bool running = true;
 	Vector2 fruit(5, 5);
 	Socket sock("127.0.0.1", "55555");
@@ -73,15 +62,15 @@ int main()
 
 	Socket *msgSock = new Socket(sock);
 
-	// while (true)
-	// {
-	// 	std::cout << "Waiting for next msg" << std::endl;
-	// 	//sock.recvHeader(msgSock, &header);
-	// 	//std::cout << "received: " << header.getID() << std::endl;
-	// 	sock.loadObj(serpi, msgSock);
-	// 	//std::cout << "llego una serpi con id: " << serpi.getSnakeID() << std::endl;
-	// 	serpi.print(std::cout);
-	// }
+	while (true)
+	{
+		std::cout << "Waiting for next msg" << std::endl;
+		sock.recvHeader(msgSock, &header);
+		//std::cout << "received: " << header.getID() << std::endl;
+		sock.loadObj(serpi, msgSock);
+		//std::cout << "llego una serpi con id: " << serpi.getSnakeID() << std::endl;
+		serpi.print(std::cout);
+	}
 
 	draw(serpi, fruit);
 	while (running)

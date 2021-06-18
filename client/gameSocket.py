@@ -34,12 +34,17 @@ class GameSocket():
         btarray = headerSize + header._data + object._data
         
         print(len(btarray))
+        file = open('socksnake.data','wb')
+        file.write(btarray)
         self.sock.sendto(btarray,(self.host,self.port)) 
         return True
 
     def recvHeader(self):
         print(f'start rcHeader')
         buf = self.sock.recv(2000,socket.MSG_PEEK)
+        file = open('recdata','wb')
+        file.write(buf)
+        
         print(buf)
         rc = Header(serialMsg.MessageID.LOGINPETITION)
         n = 0

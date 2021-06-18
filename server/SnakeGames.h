@@ -24,6 +24,28 @@ class Header : public Serializable{
 
 };
 
+class LoginPetition: public Serializable{
+	private:
+	PnD::LoginPetition _msg;
+	std::string nick;
+	public:
+	LoginPetition(const char* name):nick(name){	}
+
+	virtual void to_bin() override{
+		_msg.set_nick(nick);
+		_data = _msg.SerializeAsString();
+		_size = _msg.ByteSizeLong();
+	} 
+
+	virtual int from_bin(google::protobuf::io::CodedInputStream& cis) override{
+		_msg.ParseFromCodedStream(&cis);
+		nick = _msg.nick();
+		return 0;
+	}
+
+	std::string getName() const{return nick;}
+};
+
 class Vector2 : public Serializable{
 	protected:
 		int x;
