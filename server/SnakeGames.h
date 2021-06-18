@@ -1,25 +1,21 @@
 #include "Serializable.h"
-#include "snake.pb.h"
 #include <bits/stdint-intn.h>
 #include <iostream>
 #include <deque>
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 class Header : public Serializable{
 	public:
-	PnD::MessageID id;
-	PnD::Header _msgHeader;
+	uint32_t id;
+	json _msgHeader;
 	virtual void to_bin() override{
-		_msgHeader.set_msgid(id);
-		_data = _msgHeader.SerializeAsString();
-		_size = _msgHeader.ByteSizeLong();
 	}
-	virtual int from_bin(google::protobuf::io::CodedInputStream& cis) override{
-		_msgHeader.ParseFromCodedStream(&cis);
-		id = _msgHeader.msgid();
-		return 0;
+	virtual int from_bin(char* data) override{
 	}
 
-	Header(PnD::MessageID i=PnD::MessageID::LOGINPETITION):id(i){
+	Header(uint32_t i=0):id(i){
 	}
 
 };
@@ -28,12 +24,12 @@ class Vector2 : public Serializable{
 	protected:
 		int x;
 		int y;
-		PnD::Vector2D _msg;
+		json _msg;
 	public:
 		int getX() const {return x;}
 		int getY() const {return y;}
 		virtual void to_bin() override;
-		virtual int from_bin(google::protobuf::io::CodedInputStream& cis) override;
+		virtual int from_bin(char* data) override;
 		Vector2 operator+(const Vector2& b){
 			Vector2 v(this->x+b.x,this->y+b.y);
 			return v;
@@ -57,11 +53,11 @@ class Snake : public Serializable{
 		Vector2 dir;
 		int32_t id;
 		int32_t length;
-		PnD::Snake _msg;
+		json _msg;
 	public:
 		Snake(int i):id(i),dir(Vector2(1,0)),body({Vector2(6,9),Vector2(5,9)}),length(2){};
 		virtual void to_bin() override;
-		virtual int from_bin(google::protobuf::io::CodedInputStream& cis) override;
+		virtual int from_bin(char* data) override;
 
 		Vector2 getHead() const{return body.front();}
 

@@ -74,7 +74,7 @@ public:
      * 
      * 
     */
-   void recvHeader(Socket * &sock,Header* header);
+   void recvHeader(Socket * &sock,Header* header){}
 
     /**
      *  Recibe un mensaje de aplicación

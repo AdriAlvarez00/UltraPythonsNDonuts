@@ -1,8 +1,8 @@
 CC=g++
 CFLAGS=-g -I.
-DEPS = Socket.h snake.pb.h SnakeGames.h
-OBJ = Socket.o snake.pb.o SnakeGames.o 
-LIBS= -lpthread -lprotobuf
+DEPS = Socket.h SnakeGames.h json.hpp
+OBJ = Socket.o SnakeGames.o
+LIBS= -lpthread
 
 %.o: %.cc $(DEPS)
 	$(CC) -g -c -o $@ $< $(CFLAGS)

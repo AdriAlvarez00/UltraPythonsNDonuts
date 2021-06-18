@@ -4,10 +4,8 @@
 
 #include "Serializable.h"
 #include "Socket.h"
-#include "snake.pb.h"
 #include "SnakeGames.h"
 
-using namespace google::protobuf::io;
 
 Socket::Socket(const char * address, const char * port):sd(-1)
 {
@@ -35,16 +33,6 @@ Socket::Socket(const char * address, const char * port):sd(-1)
 	sa_len = result->ai_addrlen;
 }
 
-void Socket::recvHeader(Socket * &sock,Header* h){
-    char buf[MAX_MESSAGE_SIZE];
-    int rc = ::recv(sd,buf,MAX_MESSAGE_SIZE,MSG_PEEK);
-    google::protobuf::uint32 sz;
-    google::protobuf::io::ArrayInputStream ais(buf,4);
-    CodedInputStream cis(&ais);
-    cis.ReadVarint32(&sz);
-    h->from_bin(cis);
-}
-
 int Socket::loadObj(Serializable &obj, Socket * &sock)
 {
     struct sockaddr sa;
@@ -66,40 +54,17 @@ int Socket::loadObj(Serializable &obj, Socket * &sock)
         sock = new Socket(&sa, sa_len);
     }
 
-    google::protobuf::uint32 sz;
-    google::protobuf::io::ArrayInputStream ais(buffer,MAX_MESSAGE_SIZE);
-    CodedInputStream cis(&ais);
-    cis.ReadVarint32(&sz);
-    auto lim = cis.PushLimit(sz);
-    sample.from_bin(cis);
-    cis.PopLimit(lim);
-    obj.from_bin(cis);
-
     return 0;
 }
 
 int Socket::send(Serializable& obj, const Socket& sock)
 {
-    //Creamos la cabecera
-    Header header(obj.getID());
-    header.to_bin();
-    obj.to_bin();
-    
-    int sz = header.size()+4+obj.size();
-
-    char* pkg = new char[sz];
-    google::protobuf::io::ArrayOutputStream aos(pkg,sz);
-
-    CodedOutputStream *cos= new CodedOutputStream(&aos);
-    cos->WriteVarint32(header.size());
-    cos->WriteString(header.data());
-    cos->WriteString(obj.data());
-    
 
     //Serializar el objeto
     //Enviar el objeto binario a sock usando el socket sd
-    int rc = sendto(sd,(void*)pkg,sz,0,&sock.sa,sock.sa_len);
+    //int rc = sendto(sd,(void*)pkg,sz,0,&sock.sa,sock.sa_len);
     
+    int rc = 0;
     if(rc != -1)
         return 0;
     return -1;
