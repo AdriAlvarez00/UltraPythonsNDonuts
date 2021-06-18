@@ -3,22 +3,7 @@
 #include <iostream>
 #include <deque>
 #include "json.hpp"
-
 using json = nlohmann::json;
-
-class Header : public Serializable{
-	public:
-	uint32_t id;
-	json _msgHeader;
-	virtual void to_bin() override{
-	}
-	virtual int from_bin(char* data) override{
-	}
-
-	Header(uint32_t i=0):id(i){
-	}
-
-};
 
 class Vector2 : public Serializable{
 	protected:
@@ -29,7 +14,7 @@ class Vector2 : public Serializable{
 		int getX() const {return x;}
 		int getY() const {return y;}
 		virtual void to_bin() override;
-		virtual int from_bin(char* data) override;
+		virtual int from_bin(json data) override;
 		Vector2 operator+(const Vector2& b){
 			Vector2 v(this->x+b.x,this->y+b.y);
 			return v;
@@ -57,7 +42,7 @@ class Snake : public Serializable{
 	public:
 		Snake(int i):id(i),dir(Vector2(1,0)),body({Vector2(6,9),Vector2(5,9)}),length(2){};
 		virtual void to_bin() override;
-		virtual int from_bin(char* data) override;
+		virtual int from_bin(json data) override;
 
 		Vector2 getHead() const{return body.front();}
 

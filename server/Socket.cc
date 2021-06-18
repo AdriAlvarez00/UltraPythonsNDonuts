@@ -1,6 +1,5 @@
 #include <string.h>
 #include <sys/socket.h>
-#include <google/protobuf/io/zero_copy_stream_impl_lite.h>
 
 #include "Serializable.h"
 #include "Socket.h"
@@ -41,8 +40,6 @@ int Socket::loadObj(Serializable &obj, Socket * &sock)
     char buffer[MAX_MESSAGE_SIZE];
 
     ssize_t bytes = ::recvfrom(sd, buffer, MAX_MESSAGE_SIZE,0, &sa, &sa_len);
-    Header sample;
-    sample.to_bin();
 
     if ( bytes <= 0 )
     {
@@ -54,17 +51,30 @@ int Socket::loadObj(Serializable &obj, Socket * &sock)
         sock = new Socket(&sa, sa_len);
     }
 
+    json rec;
+    rec.parse(buffer);
+
+    std::cout << rec["ID"] << std::endl;
+    std::cout << rec["OBJ"] << std::endl;
+
     return 0;
 }
 
-int Socket::send(Serializable& obj, const Socket& sock)
+int Socket::send(Serializable& obj, const Socket& sock,uint32_t id)
 {
+    json j;
+    j["ID"] = id;
 
+    obj.to_bin();
+    j["OBJ"] = obj.getJSON();
+
+    std::string pkg = j.dump();
+    uint32_t sz = pkg.size();
     //Serializar el objeto
     //Enviar el objeto binario a sock usando el socket sd
-    //int rc = sendto(sd,(void*)pkg,sz,0,&sock.sa,sock.sa_len);
+    int rc = sendto(sd,(void*)pkg.c_str(),sz,0,&sock.sa,sock.sa_len);
     
-    int rc = 0;
+    //int rc = 0;
     if(rc != -1)
         return 0;
     return -1;

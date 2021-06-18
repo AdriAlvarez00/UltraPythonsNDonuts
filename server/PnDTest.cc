@@ -67,25 +67,23 @@ int main()
 	Vector2 fruit(5, 5);
 	Socket sock("127.0.0.1", "55555");
 	sock.bind();
-	Header header;
 	int i = 0;
 
 	Socket *msgSock = new Socket(sock);
 
-	// while (true)
-	// {
-	// 	std::cout << "Waiting for next msg" << std::endl;
-	// 	//sock.recvHeader(msgSock, &header);
-	// 	//std::cout << "received: " << header.getID() << std::endl;
-	// 	sock.loadObj(serpi, msgSock);
-	// 	//std::cout << "llego una serpi con id: " << serpi.getSnakeID() << std::endl;
-	// 	serpi.print(std::cout);
-	// }
+	while (true)
+	{
+		std::cout << "Waiting for next msg" << std::endl;
+		//sock.recvHeader(msgSock, &header);
+		//std::cout << "received: " << header.getID() << std::endl;
+		sock.loadObj(serpi, msgSock);
+		//std::cout << "llego una serpi con id: " << serpi.getSnakeID() << std::endl;
+		serpi.print(std::cout);
+	}
 
 	draw(serpi, fruit);
 	while (running)
 	{
-		sock.recvHeader(msgSock, &header);
 		sock.loadObj(serpi, msgSock);
 		// char in = getchar();
 		// char enter = getchar();

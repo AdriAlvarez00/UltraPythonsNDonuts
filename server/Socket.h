@@ -9,7 +9,8 @@
 #include <stdexcept>
 
 #include <ostream>
-#include <google/protobuf/message.h>
+#include "json.hpp"
+using json = nlohmann::json;
 // -----------------------------------------------------------------------------
 // Definiciones adelantadas
 // -----------------------------------------------------------------------------
@@ -105,7 +106,7 @@ public:
      *
      *    @return 0 en caso de éxito o -1 si error
      */
-    int send(Serializable &obj, const Socket& sock);
+    int send(Serializable &obj, const Socket& sock,uint32_t id);
 
     /**
      *  Enlaza el descriptor del socket a la dirección y puerto
