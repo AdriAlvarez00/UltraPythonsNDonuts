@@ -275,12 +275,12 @@ void AddDescriptorsImpl() {
       "#\n\rLoginResponse\022\022\n\nassignedId\030\001 \001(\005\"\'\n\006"
       "Header\022\035\n\005msgID\030\001 \001(\0162\016.PnD.MessageID\"5\n"
       "\005Input\022\n\n\002id\030\001 \001(\005\022 \n\tdirection\030\002 \001(\0132\r."
-      "PnD.Vector2D*P\n\tMessageID\022\021\n\rLOGINPETITI"
+      "PnD.Vector2D*b\n\tMessageID\022\021\n\rLOGINPETITI"
       "ON\020\000\022\021\n\rLOGINRESPONSE\020\001\022\r\n\tGAMESTART\020\002\022\016"
-      "\n\nGAMEUPDATE\020\003b\006proto3"
+      "\n\nGAMEUPDATE\020\003\022\020\n\014INPUTMESSAGE\020\004b\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 462);
+      descriptor, 480);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "snake.proto", &protobuf_RegisterTypes);
 }
@@ -307,6 +307,7 @@ bool MessageID_IsValid(int value) {
     case 1:
     case 2:
     case 3:
+    case 4:
       return true;
     default:
       return false;

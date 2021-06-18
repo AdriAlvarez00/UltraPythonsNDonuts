@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+from serializable import Serializable
 import pygame
 import sys
 import random
 import snake_pb2 as serialMsg
 from pygame.math import Vector2
+import gameSocket
 
 # el tamaño de la ventana y el gridsize tienen que ser divisible, y de resultado un n par, si no se mama (hay que añadir excepciones y tal)
 screen_width = 480
@@ -39,8 +41,9 @@ down = Vector2(0,1)
 left = Vector2(-1,0)
 right = Vector2(1,0)
 
-class Snake():
+class Snake(Serializable):
     def __init__(self):
+        print('init snake')
         self.length = SIZE_SNAKE
         # vector de las pociciones del cuerpo -> indice 0 es la cabeza
         self.positions = [Vector2(GRID_SIZE/2,GRID_SIZE/2)]
@@ -52,7 +55,7 @@ class Snake():
         self.turned = False     # es dependiente de la implementación del juego, no se si será<necesario serializarlo 
         self.id = -1;
 
-    def get_msg(self):
+    def get_message(self):
         msg = serialMsg.Snake()
         msg.id = self.id
         msg.direction.x = int(self.direction.x)
@@ -130,15 +133,21 @@ class Snake():
                 elif event.key == pygame.K_RIGHT:
                     self.turn(right)
                 elif event.key == pygame.K_l:
+                    print('loading snake')
                     file = open("pysnake.data","rb")
-                    msg = serialMsg.Snake()
-                    msg.ParseFromString(file.read())
-                    self.from_msg(msg)
+                    self.from_bin(file.read())
                 elif event.key == pygame.K_s:
-                    msg = self.get_msg()
+                    print('saving snake')
+                    self.to_bin()
                     file = open("pysnake.data","wb")
-                    file.write(msg.SerializeToString())
+                    file.write(self._data)
                     file.close()
+                elif event.key == pygame.K_u:
+                    sock = gameSocket.GameSocket();
+                    sock.connect('127.0.0.1',55555)
+                    sock.send(self,serialMsg.MessageID.GAMEUPDATE)
+                elif event.key == pygame.K_r:
+                    print('recv')
 
 
 

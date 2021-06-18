@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='PnD',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x0bsnake.proto\x12\x03PnD\" \n\x08Vector2D\x12\t\n\x01x\x18\x01 \x01(\x05\x12\t\n\x01y\x18\x02 \x01(\x05\"R\n\x05Snake\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x1b\n\x04\x62ody\x18\x02 \x03(\x0b\x32\r.PnD.Vector2D\x12 \n\tdirection\x18\x03 \x01(\x0b\x32\r.PnD.Vector2D\"F\n\tGameState\x12\x1c\n\x05\x66ruit\x18\x01 \x01(\x0b\x32\r.PnD.Vector2D\x12\x1b\n\x07players\x18\x02 \x03(\x0b\x32\n.PnD.Snake\"\x1d\n\rLoginPetition\x12\x0c\n\x04nick\x18\x01 \x01(\t\"#\n\rLoginResponse\x12\x12\n\nassignedId\x18\x01 \x01(\x05\"\'\n\x06Header\x12\x1d\n\x05msgID\x18\x01 \x01(\x0e\x32\x0e.PnD.MessageID\"5\n\x05Input\x12\n\n\x02id\x18\x01 \x01(\x05\x12 \n\tdirection\x18\x02 \x01(\x0b\x32\r.PnD.Vector2D*P\n\tMessageID\x12\x11\n\rLOGINPETITION\x10\x00\x12\x11\n\rLOGINRESPONSE\x10\x01\x12\r\n\tGAMESTART\x10\x02\x12\x0e\n\nGAMEUPDATE\x10\x03\x62\x06proto3')
+  serialized_pb=_b('\n\x0bsnake.proto\x12\x03PnD\" \n\x08Vector2D\x12\t\n\x01x\x18\x01 \x01(\x05\x12\t\n\x01y\x18\x02 \x01(\x05\"R\n\x05Snake\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x1b\n\x04\x62ody\x18\x02 \x03(\x0b\x32\r.PnD.Vector2D\x12 \n\tdirection\x18\x03 \x01(\x0b\x32\r.PnD.Vector2D\"F\n\tGameState\x12\x1c\n\x05\x66ruit\x18\x01 \x01(\x0b\x32\r.PnD.Vector2D\x12\x1b\n\x07players\x18\x02 \x03(\x0b\x32\n.PnD.Snake\"\x1d\n\rLoginPetition\x12\x0c\n\x04nick\x18\x01 \x01(\t\"#\n\rLoginResponse\x12\x12\n\nassignedId\x18\x01 \x01(\x05\"\'\n\x06Header\x12\x1d\n\x05msgID\x18\x01 \x01(\x0e\x32\x0e.PnD.MessageID\"5\n\x05Input\x12\n\n\x02id\x18\x01 \x01(\x05\x12 \n\tdirection\x18\x02 \x01(\x0b\x32\r.PnD.Vector2D*b\n\tMessageID\x12\x11\n\rLOGINPETITION\x10\x00\x12\x11\n\rLOGINRESPONSE\x10\x01\x12\r\n\tGAMESTART\x10\x02\x12\x0e\n\nGAMEUPDATE\x10\x03\x12\x10\n\x0cINPUTMESSAGE\x10\x04\x62\x06proto3')
 )
 
 _MESSAGEID = _descriptor.EnumDescriptor(
@@ -45,11 +45,15 @@ _MESSAGEID = _descriptor.EnumDescriptor(
       name='GAMEUPDATE', index=3, number=3,
       serialized_options=None,
       type=None),
+    _descriptor.EnumValueDescriptor(
+      name='INPUTMESSAGE', index=4, number=4,
+      serialized_options=None,
+      type=None),
   ],
   containing_type=None,
   serialized_options=None,
   serialized_start=374,
-  serialized_end=454,
+  serialized_end=472,
 )
 _sym_db.RegisterEnumDescriptor(_MESSAGEID)
 
@@ -58,6 +62,7 @@ LOGINPETITION = 0
 LOGINRESPONSE = 1
 GAMESTART = 2
 GAMEUPDATE = 3
+INPUTMESSAGE = 4
 
 
 

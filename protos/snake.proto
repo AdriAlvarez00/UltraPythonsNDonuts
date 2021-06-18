@@ -29,6 +29,7 @@ enum MessageID{
 	LOGINRESPONSE = 1;
 	GAMESTART = 2;
 	GAMEUPDATE = 3;
+	INPUTMESSAGE = 4;
 }
 message Header{
 	MessageID msgID=1;

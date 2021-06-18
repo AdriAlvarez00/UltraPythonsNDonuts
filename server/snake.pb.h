@@ -87,12 +87,13 @@ enum MessageID {
   LOGINRESPONSE = 1,
   GAMESTART = 2,
   GAMEUPDATE = 3,
+  INPUTMESSAGE = 4,
   MessageID_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
   MessageID_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
 };
 bool MessageID_IsValid(int value);
 const MessageID MessageID_MIN = LOGINPETITION;
-const MessageID MessageID_MAX = GAMEUPDATE;
+const MessageID MessageID_MAX = INPUTMESSAGE;
 const int MessageID_ARRAYSIZE = MessageID_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* MessageID_descriptor();
