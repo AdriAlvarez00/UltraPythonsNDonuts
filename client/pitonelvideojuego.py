@@ -8,6 +8,8 @@ import sys
 import random
 from pygame.math import Vector2
 import gameSocket
+import threading
+
 
 # el tamaño de la ventana y el gridsize tienen que ser divisible, y de resultado un n par, si no se mama (hay que añadir excepciones y tal)
 screen_width = 480
@@ -42,6 +44,12 @@ up =  Vector2(0,-1)
 down = Vector2(0,1)
 left = Vector2(-1,0)
 right = Vector2(1,0)
+
+#ids de los headers de red
+LOGIN = 0
+RESPONSE = 1
+INPUT = 3
+GAMESTATE = 4
 
 class Snake(Serializable):
     def __init__(self,id):
@@ -237,7 +245,7 @@ class GameState(Serializable):
             snake.draw(surface)
         self.food.draw(surface)
 
-        
+
 #TODO esto deberia ser ejecutado en un thread a parte
 def inputThread():
     while(True):
@@ -259,8 +267,7 @@ def inputThread():
         if movDir != Vector2(0,0):
             a = 2
 
-def netThread():
-    gs = GameState()
+def netThread(gs, lock, socket):
     socket = gameSocket.GameSocket()
     socket.connect('127.0.0.1',55555)
     #TODO recibir aceptacion de la conexion
@@ -270,11 +277,69 @@ def netThread():
     while(True):
         jObj = socket.recvObj()
         if jObj["ID"] == 48:
+            lock.acquire()
             gs.from_json(jObj["OBJ"])
-        
+            lock.release()
 
+
+def recGameStateThread(gs, socket):
+    while(True):
+        jObj = socket.recvObj()
+        if jObj["ID"] == GAMESTATE:
+            gs.from_json(jObj["OBJ"])
+
+def vec2toJson(v2):
+    json = dict()
+    json["x"] = v2.x
+    json["y"] = v2.y
+    return json
+
+def sendInputThread(socket):
+    while(True):
+        movDir = Vector2(0,0)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    movDir = Vector2(0,-1)
+                elif event.key == pygame.K_DOWN:
+                    movDir = Vector2(0,1)
+                elif event.key == pygame.K_LEFT:
+                    movDir = Vector2(-1,0)
+                elif event.key == pygame.K_RIGHT:
+                    movDir = Vector2(-1,0)
+        if movDir != Vector2(0,0):
+            socket.send(vec2toJson(movDir), INPUT)
+
+def conectaServer(socket, nick):
+    socket = gameSocket.GameSocket()
+    socket.connect('127.0.0.1',55555)
+    
+    jNick = dict()
+    jNick["nick"] = str(nick)
+
+    socket.send(jNick, LOGIN)
+
+    jObj = socket.recvObj()
+    if jObj["ID"] == RESPONSE:
+        return jObj["idJugador"]
+    else:
+        print(f"ERROR No se pudo conectar con el servidor, devolvió mensajeID: {}", jObj["ID"])
 
 def main():
+
+    socketCliente = gameSocket.GameSocket()
+
+    idCliente = conectaServer(socket, "bnet")
+
+    global gs
+    gs = GameState()
+
+    t1 = threading.Thread(target = recGameStateThread, args=(gs, socketCliente, ))
+    t2 = threading.Thread(target = sendInputThread, args=(socketCliente, ))
+
     pygame.init()  # inicializamos movidas de pygame
 
     clock = pygame.time.Clock()
@@ -283,13 +348,11 @@ def main():
     surface = pygame.Surface(screen.get_size())
     surface = surface.convert()
 
-    snake = Snake(14)  # movidas del juego
-    food = Food()
-    food.randomize_position(snake)
+    #snake = Snake(14)  # movidas del juego
+    #food = Food()
+    #food.randomize_position(snake)
 
     myfont = pygame.font.SysFont("monospace", 16)  # IU de los donuts ingeridos
-
-    gs = GameState()
 
     #Comenzamos a ejecutar un bucle de input
     #Bucle de red/render
