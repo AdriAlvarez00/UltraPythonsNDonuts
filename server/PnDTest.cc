@@ -76,7 +76,13 @@ int main()
 		std::cout << "Waiting for next msg" << std::endl;
 		//sock.recvHeader(msgSock, &header);
 		//std::cout << "received: " << header.getID() << std::endl;
-		sock.loadObj(serpi, msgSock);
+		json obj = sock.recvObj(msgSock);
+		
+		if (obj["ID"]== 48)
+		{
+			std::cout << "Cargando serpiente";
+			serpi.from_bin(obj["OBJ"]);
+		}
 		//std::cout << "llego una serpi con id: " << serpi.getSnakeID() << std::endl;
 		serpi.print(std::cout);
 	}
@@ -84,7 +90,7 @@ int main()
 	draw(serpi, fruit);
 	while (running)
 	{
-		sock.loadObj(serpi, msgSock);
+		sock.recvObj(msgSock);
 		// char in = getchar();
 		// char enter = getchar();
 		// switch (in)

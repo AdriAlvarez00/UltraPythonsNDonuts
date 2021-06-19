@@ -32,7 +32,7 @@ Socket::Socket(const char * address, const char * port):sd(-1)
 	sa_len = result->ai_addrlen;
 }
 
-int Socket::loadObj(Serializable &obj, Socket * &sock)
+json Socket::recvObj(Socket * &sock)
 {
     struct sockaddr sa;
     socklen_t sa_len = sizeof(struct sockaddr);
@@ -51,13 +51,22 @@ int Socket::loadObj(Serializable &obj, Socket * &sock)
         sock = new Socket(&sa, sa_len);
     }
 
-    json rec;
-    rec.parse(buffer);
+    std::cout << "bytes recv " << bytes << std::endl;
+    std::cout << "recv " << buffer << std::endl;
 
+    
+    std::string bs(buffer);
+    std::cout << "cadena de "<<bs.size()<<std::endl;
+    json rec = json::parse(bs.c_str());
+    //json joke = json::parse("{\"ID\":48,\"OBJ\":{\"body\":[{\"x\":6,\"y\":9},{\"x\":5,\"y\":9}],\"direction\":{\"x\":1,\"y\":0},\"length\":2,\"playerId\":5}}");
+
+    std::cout << rec << std::endl;
     std::cout << rec["ID"] << std::endl;
     std::cout << rec["OBJ"] << std::endl;
 
-    return 0;
+    //std::cout << joke << std::endl;
+
+    return rec;
 }
 
 int Socket::send(Serializable& obj, const Socket& sock,uint32_t id)
@@ -69,10 +78,16 @@ int Socket::send(Serializable& obj, const Socket& sock,uint32_t id)
     j["OBJ"] = obj.getJSON();
 
     std::string pkg = j.dump();
-    uint32_t sz = pkg.size();
+    size_t sz = pkg.size();
     //Serializar el objeto
     //Enviar el objeto binario a sock usando el socket sd
+
+    std::cout <<"pkg is " << pkg.c_str() << std::endl;
+    std::cout << "len is: " << sz << std::endl;
     int rc = sendto(sd,(void*)pkg.c_str(),sz,0,&sock.sa,sock.sa_len);
+
+    auto p = json::parse(pkg.c_str());
+    std::cout << "parsed " << p << std::endl;;
     
     //int rc = 0;
     if(rc != -1)
