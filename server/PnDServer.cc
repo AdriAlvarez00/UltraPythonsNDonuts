@@ -1,4 +1,8 @@
+#include "SnakeServer.h"
+int main(int argc, char** argv){
+    SnakeServer server(argv[1],argv[2]);
 
-int main(int argc, char** argv[]){
-    
+    while(true){
+        server.handle_messages();
+    }
 }

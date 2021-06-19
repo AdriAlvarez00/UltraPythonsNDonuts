@@ -1,3 +1,4 @@
+#pragma once
 #include "Serializable.h"
 #include <bits/stdint-intn.h>
 #include <iostream>
