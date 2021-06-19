@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
+from typing import Dict
 from serializable import Serializable
 import pygame
 import sys
 import random
-import snake_pb2 as serialMsg
 from pygame.math import Vector2
 import gameSocket
 
@@ -53,28 +53,33 @@ class Snake(Serializable):
         # este bool evita que la serpiente se pise a si misma al hacer buffering de input en el mismo frame 
         self.turned = False     # es dependiente de la implementación del juego, no se si será<necesario serializarlo 
         self.id = id;
-        self._msg = serialMsg.Snake()
+        self._json = dict()
 
-    def get_message(self):
-        msg = serialMsg.Snake()
-        msg.playerID = self.id
-        msg.direction.x = int(self.direction.x)
-        msg.direction.y = int(self.direction.y)
-        i = 0
+    def get_json(self):
+        json = dict()
+        json["playerId"] = self.id
+        json["direction"] = dict()
+        json["direction"]["x"] = int(self.direction.x)
+        json["direction"]["y"]= int(self.direction.y)
+        json["body"] = []
+        
         for b in self.positions:
-            bodyPos = msg.body.add()
-            bodyPos.x = int(b.x)
-            bodyPos.y = int(b.y)
-            i = i+15
-        return msg
-    def from_message(self,msg):
-        print(f'loaded id {msg.playerID}')
-        self.id = msg.playerID
-        self.direction = Vector2(msg.direction.x,msg.direction.y)
+            j = dict()
+            j["x"] = b.x
+            j["y"] = b.y
+            json["body"].append(j)
+
+        json["length"] = self.length
+        
+        return json
+    def from_json(self,json):
+        print(f'loaded id {json["playerId"]}')
+        self.id = json["playerId"]
+        self.direction = Vector2(json["direction"]["x"],json["direction"]["y"])
         self.positions.clear()
-        for p in msg.body:
-            self.positions.append(Vector2(p.x,p.y))
-        self.length = len(msg.body)
+        for p in json["body"]:
+            self.positions.append(Vector2(p["x"],p["y"]))
+        self.length = json["length"]
 
     def get_head_position(self):
         return self.positions[0]
@@ -147,13 +152,13 @@ class Snake(Serializable):
                 elif event.key == pygame.K_u:
                     sock = gameSocket.GameSocket();
                     sock.connect('127.0.0.1',22222)
-                    sock.send(self,serialMsg.MessageID.GAMEUPDATE)
+                    sock.send(self,48)
                 elif event.key == pygame.K_r:
                     sock = gameSocket.GameSocket();
                     sock.sock.bind(('127.0.0.1',22222))
-                    head, objStart = sock.recvHeader()
-                    print(head._msgid)
-                    sock.loadObject(self,objStart)
+                    j = sock.recvObj()
+                    if(j["ID"]==48):
+                        self.from_bin(j["OBJ"])
                     
 
 

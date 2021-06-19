@@ -1,13 +1,8 @@
 from google import protobuf
-# from snake_pb2 import Header
-import snake_pb2 as serialMsg
 import socket
 import sys
 from serializable import Serializable
-from serializable import Serializable, Header
-import google.protobuf.wrappers_pb2 as pbWrapper
-from google.protobuf.internal.encoder import _VarintBytes
-from google.protobuf.internal.decoder import _DecodeVarint32
+import json
 
 class GameSocket():
     def __init__(self):
@@ -21,38 +16,17 @@ class GameSocket():
         #TODO logica coniexion
         return None
     def send(self,object,headerId):
-        header = Header(headerId)
-        header.to_bin()
         object.to_bin()
 
-        headerSize = _VarintBytes(header._size)
+        j = dict()
+        j["ID"] = headerId;
+        j["OBJ"] = object._json
 
-        print(len(headerSize))
-        print(header._size)
-        print(object._size)
-        
-        btarray = headerSize + header._data + object._data
-        
-        print(len(btarray))
-        self.sock.sendto(btarray,(self.host,self.port)) 
+        self.sock.sendto(json.dumps(j).encode(),(self.host,self.port)) 
         return True
 
-    def recvHeader(self):
-        print(f'start rcHeader')
-        buf = self.sock.recv(2000,socket.MSG_PEEK)
-        print(buf)
-        rc = Header(serialMsg.MessageID.LOGINPETITION)
-        n = 0
-        hdSize, n =_DecodeVarint32(buf,n)
-        print(f'header starts at {n}')
-        print(f'header of size {hdSize}')
-        rc.from_bin(buf[n:n+hdSize])
-        n+=hdSize
-        print(f'obj starts at {n}')
-        return (rc,n)
-
-    def loadObject(self,object,startPos):
+    def recvObj(self):
         print('start load')
-        buf = self.sock.recv(2000)
-        object.from_bin(buf[startPos:])
-        print('loaded')
+        buf = self.sock.recv(32768)
+        j = json.loads(buf)
+        return j
