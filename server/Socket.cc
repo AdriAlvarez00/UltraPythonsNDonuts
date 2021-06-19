@@ -38,6 +38,7 @@ json Socket::recvObj(Socket * &sock)
     socklen_t sa_len = sizeof(struct sockaddr);
 
     char buffer[MAX_MESSAGE_SIZE];
+    //memset(buffer,0,MAX_MESSAGE_SIZE);
 
     ssize_t bytes = ::recvfrom(sd, buffer, MAX_MESSAGE_SIZE,0, &sa, &sa_len);
 
@@ -55,7 +56,7 @@ json Socket::recvObj(Socket * &sock)
     std::cout << "recv " << buffer << std::endl;
 
     
-    std::string bs(buffer);
+    std::string bs(buffer,bytes);
     std::cout << "cadena de "<<bs.size()<<std::endl;
     json rec = json::parse(bs.c_str());
     //json joke = json::parse("{\"ID\":48,\"OBJ\":{\"body\":[{\"x\":6,\"y\":9},{\"x\":5,\"y\":9}],\"direction\":{\"x\":1,\"y\":0},\"length\":2,\"playerId\":5}}");
