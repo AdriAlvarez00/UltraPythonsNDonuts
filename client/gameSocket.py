@@ -38,7 +38,6 @@ class GameSocket():
         return True
 
     def recvObj(self):
-        print('start load')
         buf = self.sock.recv(32768)
         j = json.loads(buf)
         return j

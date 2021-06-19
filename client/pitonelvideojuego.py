@@ -230,6 +230,9 @@ class GameState(Serializable):
     def from_json(self, json):
         self.food.position = Vector2(json["food"]["x"],json["food"]["y"])
         #TODO asegurarnos de que vayan en orden o determinar seguridad de 
+
+        while(len(json["snakes"])>len(self.snakes)):
+            self.snakes.append(Snake(0))
         for snake, snakeJSON in zip(self.snakes,json["snakes"]):
             snake.from_json(snakeJSON)
 
@@ -246,25 +249,11 @@ def inputThread(socket):
     while(True):
         sendInput(socket)
 
-def netThread(gs, lock, socket):
-    socket = GameSocket()
-    socket.connect('127.0.0.1',55555)
-    #TODO recibir aceptacion de la conexion
-    
-    #Por ahora, tiene sentido que la recepcion bloquee al render porque
-    #No tenemos prediccion
-    while(True):
-        jObj = socket.recvObj()
-        if jObj["ID"] == 48:
-            lock.acquire()
-            gs.from_json(jObj["OBJ"])
-            lock.release()
-
-
 def recGameStateThread(gs, socket):
     while(True):
         jObj = socket.recvObj()
         if jObj["ID"] == GAMESTATE:
+            print(jObj["OBJ"])
             gs.from_json(jObj["OBJ"])
 
 def vec2toJson(v2):
@@ -287,7 +276,7 @@ def sendInput(socket):
             elif event.key == pygame.K_LEFT:
                 movDir = Vector2(-1,0)
             elif event.key == pygame.K_RIGHT:
-                movDir = Vector2(-1,0)
+                movDir = Vector2(1,0)
     if movDir != Vector2(0,0):
         socket.send(vec2toJson(movDir), INPUT)
 
