@@ -55,7 +55,6 @@ class Snake(Serializable):
         self.positions = [Vector2(GRID_SIZE/2,GRID_SIZE/2)]
         # random.choice([up, down, left, right])  #La dir inicial es aleatoria
         self.direction = right
-        self.color = COLOR_SNAKES[id]
         self.score = 0
         # este bool evita que la serpiente se pise a si misma al hacer buffering de input en el mismo frame 
         self.turned = False     # es dependiente de la implementación del juego, no se si será<necesario serializarlo 
@@ -126,7 +125,7 @@ class Snake(Serializable):
         for p in self.positions:
             # rectangulo que vamos a pintar (pos_x,pos_y, tam_x,tam_y)
             r = pygame.Rect((p.x*TILE_SIZE, p.y*TILE_SIZE), (TILE_SIZE, TILE_SIZE))
-            pygame.draw.rect(surface, self.color, r)  # lo pintamos
+            pygame.draw.rect(surface, COLOR_SNAKES[self.id-1], r)  # lo pintamos
             # efecto de hacer chikita la colae
             pygame.draw.rect(surface, COLOR_BG_1, r, 
                             int(8 * i/len(self.positions) + 1))
@@ -203,7 +202,7 @@ def drawGrid(surface):  # dibujamos el fondo
 
 class GameState(Serializable):
     def __init__(self):
-        self.snakes = [Snake(14)]
+        self.snakes = [Snake(1)]
         self.food = Food()
         self.food.randomize_position(self.snakes[0])
             

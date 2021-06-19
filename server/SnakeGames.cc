@@ -123,6 +123,7 @@ void GameState::update(){
 		snake.move(GRID_SIZE);
 		if(snake.getHead() == fruit){
 			snake.increaseLength(SIZE_PER_FOOD);
+			randomizeDonut();
 		}
 		for(auto& checkColSnake:snakes){
 			if(checkColSnake.getSnakeID()!=snake.getSnakeID()
@@ -136,17 +137,14 @@ void GameState::update(){
 }
 
 void GameState::randomizeDonut(){
-	int x = rand()%GRID_SIZE;
-	int y = rand()%GRID_SIZE;
+	int x,y;
+
+	do
+	{
+		x = rand()%GRID_SIZE;
+		y = rand()%GRID_SIZE;
+	}
+	while (collidesWithSnake(Vector2(x,y)));
 
 	fruit = Vector2(x,y);
-
-	for(auto& checkColSnake:snakes){
-		if(checkColSnake.collidesWithBody(fruit))
-		{
-			std::cout << "Generar un donut dentro de una serpiente no es muy vegano :c\n";
-			randomizeDonut();
-			return;
-		}
-	}
 }
