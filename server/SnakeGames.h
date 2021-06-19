@@ -33,6 +33,9 @@ public:
 	}
 	Vector2 operator%(const int c){
 		Vector2 v(this->x%c,this->y%c);
+		//TODO esto tendria q ser 0 o 1?
+		if(v.x < 0) v.x = c;
+		if(v.y < 0) v.y = c;
 		return v;
 	}
 
@@ -50,7 +53,7 @@ protected:
 	json _msg;
 
 public:
-	Snake(int i) : id(i), dir(Vector2(1, 0)), body({Vector2(6, 9), Vector2(5, 9)}), length(2){};
+	Snake() : id(0), dir(Vector2(1, 0)), body({Vector2(6, 9), Vector2(5, 9)}), length(2){};
 	Snake(int i,std::vector<Vector2> body_,Vector2 dir_) : id(i), dir(dir_), body(), length(body_.size()){
 		for(auto& b :body_)
 			body.push_back(b);
@@ -78,6 +81,8 @@ public:
 		if (body.size() > length)
 			body.pop_back();
 	}
+
+	size_t getLenght() const{ return length;}
 
 	void increaseLength(int32_t by)
 	{

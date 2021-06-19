@@ -12,7 +12,7 @@
 int main()
 {
 
-	Snake serpi(1);
+	Snake serpi;
 	// serpi.to_bin();
 
 	// std::ofstream file;

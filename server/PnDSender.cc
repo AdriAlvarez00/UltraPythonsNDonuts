@@ -48,7 +48,7 @@ int main(int argc,char** argv){
         }
     }
     else if(id == 48){
-        Snake serpi(id);
+        Snake serpi;
         clientSock.send(serpi,clientSock,48);
     }
 

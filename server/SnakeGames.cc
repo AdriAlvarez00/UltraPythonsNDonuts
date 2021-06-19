@@ -80,6 +80,12 @@ void GameState::draw(){
 			}
 			printf("\n");
 		}
+	
+	//Debug info
+	std::cout << "Num of players: " << snakes.size() << std::endl;
+	for(auto& snake:snakes){
+		std::cout << "snake " << snake.getSnakeID() << " of size " << snake.getLenght() << std::endl;
+	}
 }
 
 void GameState::to_bin(){
@@ -99,6 +105,10 @@ void GameState::to_bin(){
 int GameState::from_bin(json data){
 	fruit.from_bin(data["food"]);
 	
+	//Si hay mas serpientes, hacemos resize
+	if(data["snakes"].size() > snakes.size())
+		snakes.resize(data["snakes"].size());
+
 	for(int i = 0;i<snakes.size();i++)
 	{
 		snakes[i].from_bin(data["snakes"].at(i));
