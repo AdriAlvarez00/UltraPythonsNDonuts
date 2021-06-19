@@ -139,4 +139,6 @@ public:
 		snakes.push_back(snake);
 	}
 	void update();
+
+	void randomizeDonut();
 };

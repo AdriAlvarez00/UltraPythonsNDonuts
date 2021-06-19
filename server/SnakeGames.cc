@@ -1,4 +1,5 @@
 #include "SnakeGames.h"
+#include "random"
 
 void Vector2::to_bin(){
 	_msg["x"] = x;
@@ -122,6 +123,7 @@ void GameState::update(){
 		snake.move(GRID_SIZE);
 		if(snake.getHead() == fruit){
 			snake.increaseLength(SIZE_PER_FOOD);
+			randomizeDonut();
 		}
 		for(auto& checkColSnake:snakes){
 			if(checkColSnake.getSnakeID()!=snake.getSnakeID()
@@ -132,4 +134,17 @@ void GameState::update(){
 		}
 		//TODO comprobar colision entre serpientes
 	}
+}
+
+void GameState::randomizeDonut(){
+	int x,y;
+
+	do
+	{
+		x = rand()%GRID_SIZE;
+		y = rand()%GRID_SIZE;
+	}
+	while (collidesWithSnake(Vector2(x,y)));
+
+	fruit = Vector2(x,y);
 }
