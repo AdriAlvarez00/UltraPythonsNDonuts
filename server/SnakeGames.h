@@ -31,6 +31,10 @@ public:
 	{
 		return this->x != b.x || this->y != b.y;
 	}
+	Vector2 operator%(const int c){
+		Vector2 v(this->x%c,this->y%c);
+		return v;
+	}
 
 	Vector2(int _x, int _y) : x(_x), y(_y) {}
 	Vector2() : x(0), y(0) {}
@@ -65,9 +69,10 @@ public:
 		}
 	}
 
-	void move()
+	void move(int gridSize)
 	{
 		Vector2 newHead = getHead() + dir;
+		newHead = newHead%gridSize;
 		body.push_front(newHead);
 
 		if (body.size() > length)
@@ -104,18 +109,19 @@ public:
 class GameState : public Serializable
 {
 	std::vector<Snake> snakes;
-	Vector2 fruit;
+	Vector2 fruit = Vector2(10,10);
 	const char C_SNAKE = 'X';
 	const char C_WALL = '#';
 	const char C_FOOD = '0';
 	const uint32_t GRID_SIZE = 20;
+	const uint32_t SIZE_PER_FOOD = 2;
 	bool collidesWithSnake(Vector2 pos);
 public:
 	GameState() {}
 	virtual void to_bin() override;
 	virtual int from_bin(json data) override;
 
-	void draw(const Snake &snake, const Vector2 &fruit);
+	void draw();
 	void moveSnake(uint32_t snakeId, Vector2 dir)
 	{
 		std::cout << "moviendo la serpiente con id: " << snakeId << std::endl;

@@ -26,11 +26,7 @@ class Serializable
 public:
     Serializable(){ };
 
-    virtual ~Serializable(){
-        //TODO investigar por que da error si hacemos
-        // delete _message
-        // Explota cuando snake intenta liberar la memoria de sus Vec2
-    };
+    virtual ~Serializable()=default;
 
     /**
      *  Genera la representación binaria de la clase. Debe inicializar

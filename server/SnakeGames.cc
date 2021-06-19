@@ -54,7 +54,7 @@ bool GameState::collidesWithSnake(Vector2 pos){
 	return false;
 }
 
-void GameState::draw(const Snake &snake, const Vector2 &fruit){
+void GameState::draw(){
 	printf("\033c");
 		for (int y = 0; y < GRID_SIZE+2; y++)
 		{
@@ -109,9 +109,16 @@ int GameState::from_bin(json data){
 
 void GameState::update(){
 	for(auto& snake:snakes){
-		snake.move();
-		if(snake.collidesWithBody(fruit)){
-			snake.increaseLength(2);
+		snake.move(GRID_SIZE);
+		if(snake.getHead() == fruit){
+			snake.increaseLength(SIZE_PER_FOOD);
+		}
+		for(auto& checkColSnake:snakes){
+			if(checkColSnake.getSnakeID()!=snake.getSnakeID()
+			 && checkColSnake.collidesWithBody(snake.getHead()))
+			 {
+				 std::cout << "Snake " << snake.getSnakeID() << "died\n";
+			 }
 		}
 		//TODO comprobar colision entre serpientes
 	}

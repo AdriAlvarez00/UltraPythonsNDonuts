@@ -64,7 +64,7 @@ int main()
 
 		if (serpi.getHead() == fruit)
 			serpi.increaseLength(5);
-		serpi.move();
+		serpi.move(20);
 		//draw(serpi, fruit);
 		std::cout << i;
 		i++;
