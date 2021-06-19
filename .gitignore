@@ -10,3 +10,5 @@ server/PnDSever
 client/.vim/
 
 client/__pycache__/
+
+.vscode/settings.json

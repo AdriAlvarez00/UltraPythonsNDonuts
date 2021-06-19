@@ -1,4 +1,5 @@
 #include "SnakeGames.h"
+#include "random"
 
 void Vector2::to_bin(){
 	_msg["x"] = x;
@@ -131,5 +132,21 @@ void GameState::update(){
 			 }
 		}
 		//TODO comprobar colision entre serpientes
+	}
+}
+
+void GameState::randomizeDonut(){
+	int x = rand()%GRID_SIZE;
+	int y = rand()%GRID_SIZE;
+
+	fruit = Vector2(x,y);
+
+	for(auto& checkColSnake:snakes){
+		if(checkColSnake.collidesWithBody(fruit))
+		{
+			std::cout << "Generar un donut dentro de una serpiente no es muy vegano :c\n";
+			randomizeDonut();
+			return;
+		}
 	}
 }
