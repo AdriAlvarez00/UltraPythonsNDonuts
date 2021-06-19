@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import json
+from os import sendfile
 from typing import Dict
 from serializable import Serializable
 import pygame
@@ -125,6 +127,8 @@ class Snake(Serializable):
                             int(8 * i/len(self.positions) + 1))
             i += 1
 
+
+    # Solo para debug,esto lo gestiona el servidor
     def handle_keys(self):  # no hay cebolla de input (┬┬﹏┬┬)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -195,11 +199,13 @@ def drawGrid(surface):  # dibujamos el fondo
                 pygame.draw.rect(surface, COLOR_BG_2, r)
 
 
-class GameState():
+class GameState(Serializable):
     def __init__(self):
         self.snakes = [Snake(14)]
         self.food = Food()
         self.food.randomize_position(self.snakes[0])
+            
+
     def update(self):
         for snake in self.snakes:
             snake.handle_keys()
@@ -209,6 +215,20 @@ class GameState():
                 snake.length += LENGTH__PER_FOOD
                 snake.score += SCORE_PER_FOOD
                 self.food.randomize_position(self.snakes[0])
+    def get_json(self):
+        json = dict()
+        json["food"] = dict()
+        json["food"]["x"] = self.food.position.x
+        json["food"]["y"] = self.food.position.y
+        json["snakes"] = []
+        for snake in self.snakes:
+            json["snakes"].append(snake.get_json())
+        return json
+    def from_json(self, json):
+        self.food.position = Vector2(json["food"]["x"],json["food"]["y"])
+        #TODO asegurarnos de que vayan en orden o determinar seguridad de 
+        for snake, snakeJSON in zip(self.snakes,json["snakes"]):
+            snake.from_json(snakeJSON)
 
 
     def draw(self,surface):
@@ -217,6 +237,40 @@ class GameState():
             snake.draw(surface)
         self.food.draw(surface)
 
+        
+#TODO esto deberia ser ejecutado en un thread a parte
+def inputThread():
+    while(True):
+        movDir = Vector2(0,0)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    # Input de up
+                    movDir = Vector2(0,-1)
+                elif event.key == pygame.K_DOWN:
+                    movDir = Vector2(0,1)
+                elif event.key == pygame.K_LEFT:
+                    movDir = Vector2(-1,0)
+                elif event.key == pygame.K_RIGHT:
+                    movDir = Vector2(-1,0)
+        if movDir != Vector2(0,0):
+            a = 2
+
+def netThread():
+    gs = GameState()
+    socket = gameSocket.GameSocket()
+    socket.connect('127.0.0.1',55555)
+    #TODO recibir aceptacion de la conexion
+    
+    #Por ahora, tiene sentido que la recepcion bloquee al render porque
+    #No tenemos prediccion
+    while(True):
+        jObj = socket.recvObj()
+        if jObj["ID"] == 48:
+            gs.from_json(jObj["OBJ"])
         
 
 
@@ -237,10 +291,12 @@ def main():
 
     gs = GameState()
 
+    #Comenzamos a ejecutar un bucle de input
+    #Bucle de red/render
+
     while (True):
         clock.tick(GAME_SPEED)
 
-        gs.update()
         gs.draw(surface)
         # esto manda la surface a la ventana para pintarla
         screen.blit(surface, (0, 0))
