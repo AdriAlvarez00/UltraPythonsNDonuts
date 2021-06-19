@@ -81,7 +81,7 @@ void SnakeServer::handle_messages()
 
 void SnakeServer::run_logic(){
     while(true){
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000) );
+        std::this_thread::sleep_for(std::chrono::milliseconds(500) );
 
         mtx_input.lock();
         for(int i = 0;i<connectedPlayers;i++){
