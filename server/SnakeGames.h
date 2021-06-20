@@ -50,6 +50,8 @@ protected:
 	Vector2 dir;
 	int32_t id;
 	int32_t length;
+	//Este atributo no se serializara, solo es importante para la logica del juego
+	bool alive = true;
 	json _msg;
 
 public:
@@ -74,6 +76,9 @@ public:
 
 	void move(int gridSize)
 	{
+		if(!alive)
+			return;
+		
 		Vector2 newHead = getHead() + dir;
 		newHead = newHead%gridSize;
 		body.push_front(newHead);
@@ -92,6 +97,13 @@ public:
 	bool collidesWithBody(const Vector2 &v) const
 	{
 		auto it = body.begin();
+
+		//Si solo tiene cabeza, no tiene cuerpo
+		if(it == body.end())
+			return false;
+		//Nos saltamos la cabeza
+		++it;
+
 		while (it != body.end() && *it != v)
 			++it;
 
@@ -109,6 +121,10 @@ public:
 	{
 		return id;
 	}
+
+	bool isAlive() const{return alive;}
+
+	void setAlive(bool to){alive=to;}
 };
 
 class GameState : public Serializable
@@ -141,4 +157,12 @@ public:
 	void update();
 
 	void randomizeDonut();
+
+	uint32_t remainingSnakes() const{
+		uint32_t i = 0;
+		for(auto& snake:snakes)
+			if(snake.isAlive())
+				++i;
+			return i;
+	}
 };

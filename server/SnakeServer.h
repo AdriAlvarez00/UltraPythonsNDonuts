@@ -15,6 +15,7 @@ private:
     //Y el juego nunca se vera ralentizado por culpa de un mensaje de input, a diferencia de si
     //Usasemos el mutex para el estado de juego
     std::mutex mtx_input;
+    std::mutex mtx_state;
     std::vector<Vector2> receivedInputs;
 
     std::vector<std::pair<uint32_t, std::unique_ptr<Socket>>> clients;

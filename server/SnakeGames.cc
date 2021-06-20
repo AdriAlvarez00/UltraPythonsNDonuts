@@ -1,7 +1,8 @@
 #include "SnakeGames.h"
 #include "random"
 
-void Vector2::to_bin(){
+void Vector2::to_bin()
+{
 	_msg["x"] = x;
 	_msg["y"] = y;
 
@@ -11,18 +12,21 @@ void Vector2::to_bin(){
 	_data = dump.c_str();
 }
 
-int Vector2::from_bin(json data){
+int Vector2::from_bin(json data)
+{
 	x = data["x"];
 	y = data["y"];
 	return 0;
 }
 
-void Snake::to_bin(){
+void Snake::to_bin()
+{
 	_msg["playerId"] = id;
 	_msg["direction"]["x"] = dir.getX();
 	_msg["direction"]["y"] = dir.getY();
 	_msg["body"] = {};
-	for(auto it = body.begin();it!= body.end();it++){
+	for (auto it = body.begin(); it != body.end(); it++)
+	{
 		json v2;
 		v2["x"] = it->getX();
 		v2["y"] = it->getY();
@@ -36,64 +40,73 @@ void Snake::to_bin(){
 	_data = dump.c_str();
 }
 
-int Snake::from_bin(json data){
+int Snake::from_bin(json data)
+{
 	id = data["playerId"];
-	dir = Vector2(data["direction"]["x"],data["direction"]["y"]);
+	dir = Vector2(data["direction"]["x"], data["direction"]["y"]);
 	body.clear();
-	for(auto it=data["body"].begin();it!=data["body"].end();++it){
-		body.push_back(Vector2((*it)["x"].get<int32_t>(),(*it)["y"].get<int32_t>()));
+	for (auto it = data["body"].begin(); it != data["body"].end(); ++it)
+	{
+		body.push_back(Vector2((*it)["x"].get<int32_t>(), (*it)["y"].get<int32_t>()));
 	}
 	length = data["length"];
 	return 0;
 }
 
-bool GameState::collidesWithSnake(Vector2 pos){
-	for(auto it = snakes.begin();it!=snakes.end();++it){
-		if(it->collidesWithBody(pos))
+bool GameState::collidesWithSnake(Vector2 pos)
+{
+	// std::cout << "chek col w " << snakes.size() << " snakes\n";
+	for (auto it = snakes.begin(); it != snakes.end(); ++it)
+	{
+		if (it->collidesWithBody(pos) || it->getHead()==pos)
 			return true;
 	}
 	return false;
 }
 
-void GameState::draw(){
+void GameState::draw()
+{
 	printf("\033c");
-		for (int y = 0; y < GRID_SIZE+2; y++)
+	for (int y = 0; y < GRID_SIZE + 2; y++)
+	{
+		for (int x = 0; x < GRID_SIZE + 2; x++)
 		{
-			for (int x = 0; x < GRID_SIZE+2; x++)
+			if (x == 0 || x == GRID_SIZE + 1 || y == 0 || y == GRID_SIZE + 1)
 			{
-				if (x == 0 || x == GRID_SIZE + 1 || y == 0 || y == GRID_SIZE + 1)
-				{
-					std::cout<<C_SNAKE;
-				}
-				else if (Vector2(x, y) == fruit)
-				{
-					std::cout<<C_FOOD;
-				}
-				//No es eficiente pero es debug
-				else if (collidesWithSnake(Vector2(x,y)))
-				{
-					std::cout<<C_SNAKE;
-				}
-				else
-				{
-					std::cout<<" ";
-				}
+				std::cout << C_SNAKE;
 			}
-			printf("\n");
+			else if (Vector2(x, y) == fruit)
+			{
+				std::cout << C_FOOD;
+			}
+			//No es eficiente pero es debug
+			else if (collidesWithSnake(Vector2(x, y)))
+			{
+				std::cout << C_SNAKE;
+			}
+			else
+			{
+				std::cout << " ";
+			}
 		}
-	
+		printf("\n");
+	}
+
 	//Debug info
 	std::cout << "Num of players: " << snakes.size() << std::endl;
-	for(auto& snake:snakes){
+	for (auto &snake : snakes)
+	{
 		std::cout << "snake " << snake.getSnakeID() << " of size " << snake.getLenght() << std::endl;
 	}
 }
 
-void GameState::to_bin(){
+void GameState::to_bin()
+{
 	_json["food"]["x"] = fruit.getX();
 	_json["food"]["y"] = fruit.getY();
 	_json["snakes"] = {};
-	for(auto it = snakes.begin();it!=snakes.end();it++){
+	for (auto it = snakes.begin(); it != snakes.end(); it++)
+	{
 		it->to_bin();
 		_json["snakes"].push_back(it->getJSON());
 	}
@@ -103,14 +116,15 @@ void GameState::to_bin(){
 	_size = dump.size();
 }
 
-int GameState::from_bin(json data){
+int GameState::from_bin(json data)
+{
 	fruit.from_bin(data["food"]);
-	
+
 	//Si hay mas serpientes, hacemos resize
-	if(data["snakes"].size() > snakes.size())
+	if (data["snakes"].size() > snakes.size())
 		snakes.resize(data["snakes"].size());
 
-	for(int i = 0;i<snakes.size();i++)
+	for (int i = 0; i < snakes.size(); i++)
 	{
 		snakes[i].from_bin(data["snakes"].at(i));
 	}
@@ -118,33 +132,49 @@ int GameState::from_bin(json data){
 	return 0;
 }
 
-void GameState::update(){
-	for(auto& snake:snakes){
+
+void GameState::update()
+{
+	for (auto &snake : snakes)
+	{
 		snake.move(GRID_SIZE);
-		if(snake.getHead() == fruit){
+		if (snake.getHead() == fruit)
+		{
 			snake.increaseLength(SIZE_PER_FOOD);
 			randomizeDonut();
 		}
-		for(auto& checkColSnake:snakes){
-			if(checkColSnake.getSnakeID()!=snake.getSnakeID()
-			 && checkColSnake.collidesWithBody(snake.getHead()))
-			 {
-				 std::cout << "Snake " << snake.getSnakeID() << "died\n";
-			 }
+		for (auto &checkColSnake : snakes)
+		{
+			//Para comprobar colision con las demas serpientes
+			//Comprobamos colision con todas
+			if (checkColSnake.getSnakeID() != snake.getSnakeID())
+			{
+				if (checkColSnake.collidesWithBody(snake.getHead()) || checkColSnake.getHead() == snake.getHead())
+				{
+					std::cout << "Snake " << snake.getSnakeID() << "died\n";
+					snake.setAlive(false);
+				}
+			}
+			//Para comprobar colision con nosotros mismos comprobaremos colision
+			//Con la cabeza
+			else if(snake.collidesWithBody(snake.getHead()))
+			{
+				std::cout << "Snake " << snake.getSnakeID() << "commited sudoku\n";
+				snake.setAlive(false);
+			}
 		}
-		//TODO comprobar colision entre serpientes
 	}
 }
 
-void GameState::randomizeDonut(){
-	int x,y;
+void GameState::randomizeDonut()
+{
+	int x, y;
 
 	do
 	{
-		x = rand()%GRID_SIZE;
-		y = rand()%GRID_SIZE;
-	}
-	while (collidesWithSnake(Vector2(x,y)));
+		x = rand() % GRID_SIZE;
+		y = rand() % GRID_SIZE;
+	} while (collidesWithSnake(Vector2(x, y)));
 
-	fruit = Vector2(x,y);
+	fruit = Vector2(x, y);
 }

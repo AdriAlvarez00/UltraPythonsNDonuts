@@ -27,6 +27,7 @@ void SnakeServer::on_connection_requested(Socket *sc, LoginPetition &pet)
     sc = nullptr;
     clients.push_back(std::make_pair(response.uid, std::move(uptr)));
 
+    mtx_state.lock();
     if (response.uid == 1)
     {
         Snake s(response.uid, {Vector2(3, 3), Vector2(2, 3)}, Vector2(1, 0));
@@ -48,6 +49,7 @@ void SnakeServer::on_connection_requested(Socket *sc, LoginPetition &pet)
         gameState.addSnake(s);
     }
 
+    mtx_state.unlock();
     //Aumentamos el buffer de input
     receivedInputs.push_back(Vector2(0, 0));
 }
@@ -117,11 +119,13 @@ void SnakeServer::run_logic()
                 gameState.moveSnake(i + 1, receivedInputs[i]);
             }
             mtx_input.unlock();
+            mtx_state.lock();
 
             gameState.update();
             gameState.draw();
             //No tiene sentido hacer broadcast si no actualizamos el estado;
             broadcast_state();
+            mtx_state.unlock();
         }
         else if (state == ServerState::WAITING)
         {
