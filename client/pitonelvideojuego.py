@@ -11,8 +11,8 @@ from gameSocket import GameSocket
 import threading
 
 # el tamaño de la ventana y el gridsize tienen que ser divisible, y de resultado un n par, si no se mama (hay que añadir excepciones y tal)
-screen_width = 480
-screen_height = 480
+screen_width = 550
+screen_height = 550
 
 GRID_SIZE = 20
 TILE_SIZE = 24
@@ -27,7 +27,7 @@ COLOR_BG_1 = (150, 150, 170)
 COLOR_BG_2 = (180, 180, 200)
 
 COLOR_FOOD = (223, 50, 90)
-SIZE_FOOD = 7
+SIZE_FOOD = 8
 SCORE_PER_FOOD = 1
 LENGTH__PER_FOOD = 2
 
@@ -121,52 +121,62 @@ class Snake(Serializable):
         self.score = 0
 
     def draw(self, surface):
-        i = 1
+        i = 0
+        borderMax = 10  #en pixeles
+        borderMin = 2   #en pixeles
         for p in self.positions:
+            porc = i/len(self.positions)
+            pos = (p.x*TILE_SIZE + int(porc*borderMax/2) + borderMin,
+                   p.y*TILE_SIZE + int(porc*borderMax/2) + borderMin)
+
+            tam = (TILE_SIZE - int(porc*borderMax + 2*borderMin), 
+                   TILE_SIZE - int(porc*borderMax + 2*borderMin))
+
             # rectangulo que vamos a pintar (pos_x,pos_y, tam_x,tam_y)
-            r = pygame.Rect((p.x*TILE_SIZE, p.y*TILE_SIZE), (TILE_SIZE, TILE_SIZE))
+            r = pygame.Rect(pos, tam)
             pygame.draw.rect(surface, COLOR_SNAKES[self.id-1], r)  # lo pintamos
+            
             # efecto de hacer chikita la colae
-            pygame.draw.rect(surface, COLOR_BG_1, r, 
-                            int(8 * i/len(self.positions) + 1))
+            #pygame.draw.rect(surface, COLOR_BG_1, r, 
+            #                int(8 * i/len(self.positions) + 0))
             i += 1
 
 
     # Solo para debug,esto lo gestiona el servidor
-    def handle_keys(self):  # no hay cebolla de input (┬┬﹏┬┬)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    self.turn(up)
-                elif event.key == pygame.K_DOWN:
-                    self.turn(down)
-                elif event.key == pygame.K_LEFT:
-                    self.turn(left)
-                elif event.key == pygame.K_RIGHT:
-                    self.turn(right)
-                elif event.key == pygame.K_l:
-                    print('loading snake')
-                    file = open("pysnake.data","rb")
-                    self.from_bin(file.read())
-                elif event.key == pygame.K_s:
-                    print('saving snake')
-                    self.to_bin()
-                    file = open("pysnake.data","wb")
-                    file.write(self._data)
-                    file.close()
-                elif event.key == pygame.K_u:
-                    sock = gameSocket.GameSocket();
-                    sock.connect('127.0.0.1',22222)
-                    sock.send(self,48)
-                elif event.key == pygame.K_r:
-                    sock = gameSocket.GameSocket();
-                    sock.sock.bind(('127.0.0.1',22222))
-                    j = sock.recvObj()
-                    if(j["ID"]==48):
-                        self.from_bin(j["OBJ"])
+    # def handle_keys(self):  # no hay cebolla de input (┬┬﹏┬┬)
+    #     for event in pygame.event.get():
+    #         if event.type == pygame.QUIT:
+    #             pygame.quit()
+    #             sys.exit()
+    #         elif event.type == pygame.KEYDOWN:
+    #             if event.key == pygame.K_UP:
+    #                 self.turn(up)
+    #             elif event.key == pygame.K_DOWN:
+    #                 self.turn(down)
+    #             elif event.key == pygame.K_LEFT:
+    #                 self.turn(left)
+    #             elif event.key == pygame.K_RIGHT:
+    #                 self.turn(right)
+    #             elif event.key == pygame.K_l:
+    #                 print('loading snake')
+    #                 file = open("pysnake.data","rb")
+    #                 self.from_bin(file.read())
+    #             elif event.key == pygame.K_s:
+    #                 print('saving snake')
+    #                 self.to_bin()
+    #                 file = open("pysnake.data","wb")
+    #                 file.write(self._data)
+    #                 file.close()
+    #             elif event.key == pygame.K_u:
+    #                 sock = gameSocket.GameSocket();
+    #                 sock.connect('127.0.0.1',22222)
+    #                 sock.send(self,48)
+    #             elif event.key == pygame.K_r:
+    #                 sock = gameSocket.GameSocket();
+    #                 sock.sock.bind(('127.0.0.1',22222))
+    #                 j = sock.recvObj()
+    #                 if(j["ID"]==48):
+    #                     self.from_bin(j["OBJ"])
                     
 class Food():           # Donuts (*/ω＼*)
     def __init__(self):
@@ -184,7 +194,7 @@ class Food():           # Donuts (*/ω＼*)
 
     def draw(self, surface):
         # TODO recuperar los efectos visuales chulos del donut
-        r = pygame.Rect((self.position.x*TILE_SIZE, self.position.y*TILE_SIZE) # magia para que parezca un donut de verdad
+        r = pygame.Rect((self.position.x*TILE_SIZE + 2, self.position.y*TILE_SIZE + 2) # magia para que parezca un donut de verdad
                          , (int(TILE_SIZE*0.8), int(TILE_SIZE*0.8)))
         pygame.draw.rect(surface, self.color, r, SIZE_FOOD)
 
@@ -323,6 +333,8 @@ def main():
 
     myfont = pygame.font.SysFont("monospace", 16)  # IU de los donuts ingeridos
 
+    marginL = (screen_width - GRID_SIZE * TILE_SIZE)/2
+    marginT = (screen_height - GRID_SIZE * TILE_SIZE)/2
     #Comenzamos a ejecutar un bucle de input
     #Bucle de red/render
 
@@ -332,7 +344,7 @@ def main():
         sendInput(socketCliente)
         gs.draw(surface)
         # esto manda la surface a la ventana para pintarla
-        screen.blit(surface, (0, 0))
+        screen.blit(surface, (marginL, marginT))
 
         # text = myfont.render("Donuts {0}".format(snake.score), 1, COLOR_SCORE)
         #screen.blit(text, (5, 10))  # lo mismo de arriba pero con el texto
