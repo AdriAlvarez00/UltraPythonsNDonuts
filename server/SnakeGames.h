@@ -34,8 +34,8 @@ public:
 	Vector2 operator%(const int c){
 		Vector2 v(this->x%c,this->y%c);
 		//TODO esto tendria q ser 0 o 1?
-		if(v.x < 0) v.x = c;
-		if(v.y < 0) v.y = c;
+		//if(v.x < 0) v.x = c;
+		//if(v.y < 0) v.y = c;
 		return v;
 	}
 
@@ -80,7 +80,7 @@ public:
 			return;
 		
 		Vector2 newHead = getHead() + dir;
-		newHead = newHead%gridSize;
+		newHead = (newHead + Vector2(gridSize, gridSize)) % gridSize;
 		body.push_front(newHead);
 
 		if (body.size() > length)

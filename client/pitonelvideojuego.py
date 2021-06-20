@@ -20,7 +20,7 @@ TILE_SIZE = 24
 
 GAME_SPEED = 5  # esto determina la velocidad del juego (mayor -> mas rapido)
 
-COLOR_SNAKES = ((50, 100, 20),(100, 20, 90),(204, 122, 0),(0, 153, 255))
+COLOR_SNAKES = ((50, 50, 50),(50, 100, 20),(100, 20, 90),(204, 122, 0),(0, 153, 255))
 SIZE_SNAKE = 7  # tam inicial
 
 TILE_BG = True  # patron de ajedrez
@@ -78,8 +78,8 @@ class Snake(Serializable):
         self.direction = right
         self.score = 0
         # este bool evita que la serpiente se pise a si misma al hacer buffering de input en el mismo frame 
-        self.turned = False     # es dependiente de la implementación del juego, no se si será<necesario serializarlo 
-        self.id = id;
+        # self.turned = False     # es dependiente de la implementación del juego, no se si será<necesario serializarlo 
+        self.id = id
         self._json = dict()
 
     def get_json(self):
@@ -145,6 +145,10 @@ class Snake(Serializable):
         i = 0
         borderMax = 10  #en pixeles
         borderMin = 2   #en pixeles
+
+        color = COLOR_SNAKES[self.id]
+        if(self.id == 1): color = COLOR_SNAKES[0]
+
         for p in self.positions:
             porc = i/len(self.positions)
             pos = (p.x*TILE_SIZE + int(porc*borderMax/2) + borderMin,
@@ -155,7 +159,7 @@ class Snake(Serializable):
 
             # rectangulo que vamos a pintar (pos_x,pos_y, tam_x,tam_y)
             r = pygame.Rect(pos, tam)
-            pygame.draw.rect(surface, COLOR_SNAKES[self.id-1], r)  # lo pintamos
+            pygame.draw.rect(surface, color, r)  # lo pintamos
             
             # efecto de hacer chikita la colae
             #pygame.draw.rect(surface, COLOR_BG_1, r, 
@@ -346,6 +350,18 @@ def conectaServer(socket, nick):
         a = 2
         # print(f"ERROR No se pudo conectar con el servidor, devolvió mensajeID: {}", jObj["ID"])
 
+def drawMargins(surface):
+
+    #r = pygame.Rect((x*TILE_SIZE, y*TILE_SIZE), (TILE_SIZE, TILE_SIZE))
+    #   pygame.draw.rect(surface, COLOR_BG_1, r)
+    gameSize = GRID_SIZE * TILE_SIZE
+
+    grosorH = (screen_width - gameSize)/2
+    grosorV = (screen_height - gameSize)/2
+
+    r = pygame.Rect((0,0),(grosorH, grosorV))
+    pygame.draw.rect(surface, (200,0,0), r)
+
 def main():
 
     socketCliente = GameSocket()
@@ -387,6 +403,7 @@ def main():
 
         sendInput(socketCliente)
         gs.draw(surface)
+        drawMargins(surface)
         # esto manda la surface a la ventana para pintarla
         screen.blit(surface, (marginL, marginT))
 

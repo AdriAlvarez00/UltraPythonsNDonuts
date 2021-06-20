@@ -91,7 +91,7 @@ void SnakeServer::handle_messages()
         }
         else if (id == MessageID::REQUESTSTART)
         {
-            if (connectedPlayers > 1 && get_connected_id(msgSock)==1)
+            if (connectedPlayers > 0 && get_connected_id(msgSock)==1)
             {
                 StartGame start;
                 for (auto it = clients.begin(); it != clients.end(); ++it)
@@ -130,7 +130,7 @@ void SnakeServer::run_logic()
         else if (state == ServerState::WAITING)
         {
             //Si no esperamos un poco no podemos ver el estado en el servidor
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
             gameState.draw();
             //No tiene sentido hacer broadcast si no actualizamos el estado;
