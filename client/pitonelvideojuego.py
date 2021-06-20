@@ -10,7 +10,7 @@ import threading
 from enum import Enum
 
 # el tamaño de la ventana y el gridsize tienen que ser divisible, y de resultado un n par, si no se mama (hay que añadir excepciones y tal)
-screen_width = 550
+screen_width = 700
 screen_height = 550
 
 GRID_SIZE = 20
@@ -33,7 +33,7 @@ LENGTH__PER_FOOD = 2
 COLOR_SCORE = (255, 0, 0)
 SIZE_SCORE = 100
 
-
+COLOR_BORDES = (100, 80, 60)
 
 # direcciones usadas para el movimiento de la serpiente
 up =  Vector2(0,-1)
@@ -148,7 +148,7 @@ class Snake(Serializable):
         borderMin = 2   #en pixeles
 
         color = COLOR_SNAKES[self.id]
-        if(self.id == 1): color = COLOR_SNAKES[0]
+        if(not self.alive): color = COLOR_SNAKES[0]
 
         for p in self.positions:
             porc = i/len(self.positions)
@@ -337,7 +337,8 @@ def sendInput(socket):
         socket.send(vec2toJson(movDir), messageID.INPUT)
 
 def conectaServer(socket, nick):
-    socket.connect('127.0.0.1',55555)
+    ip = input("Enter server ip: ")
+    socket.connect(ip,55555)
     
     jNick = dict()
     jNick["nick"] = str(nick)
@@ -360,8 +361,17 @@ def drawMargins(surface):
     grosorH = (screen_width - gameSize)/2
     grosorV = (screen_height - gameSize)/2
 
-    r = pygame.Rect((0,0),(grosorH, grosorV))
-    pygame.draw.rect(surface, (200,0,0), r)
+    r = pygame.Rect((0,0),(screen_width, grosorV))  #borde arriba
+    pygame.draw.rect(surface, COLOR_BORDES, r)
+
+    r = pygame.Rect((0,screen_height - grosorV),(screen_width, grosorV)) #borde abajo
+    pygame.draw.rect(surface, COLOR_BORDES, r)
+
+    r = pygame.Rect((0,0),(grosorH, screen_height)) #borde iz
+    pygame.draw.rect(surface, COLOR_BORDES, r)
+
+    r = pygame.Rect((screen_width - grosorH,0),(grosorH, screen_height)) #borde der
+    pygame.draw.rect(surface, COLOR_BORDES, r)
 
 def main():
 
@@ -385,8 +395,11 @@ def main():
     clock = pygame.time.Clock()
     screen = pygame.display.set_mode((screen_width, screen_height), 0, 32)
 
-    surface = pygame.Surface(screen.get_size())
+    surface = pygame.Surface(screen.get_size()) #superficie donde se pinta el juego en si
     surface = surface.convert()
+
+    surfBordes = pygame.Surface(screen.get_size())  #superficie para los bordes
+    surfBordes = surface.convert()
 
     #snake = Snake(14)  # movidas del juego
     #food = Food()
@@ -404,9 +417,12 @@ def main():
 
         sendInput(socketCliente)
         gs.draw(surface)
-        drawMargins(surface)
+        drawMargins(surfBordes)
         # esto manda la surface a la ventana para pintarla
-        screen.blit(surface, (marginL, marginT))
+        screen.blit(surfBordes, ((0, 0)))
+        #calculamos los bordes y los ponemos
+        r = pygame.Rect((0,0),(TILE_SIZE * GRID_SIZE, TILE_SIZE * GRID_SIZE))
+        screen.blit(surface, (marginL, marginT), r)
 
         if(g_cState == ClientState.WAITING):
             text = myfont.render("WAITING, PLAYER 1 PRESS START", 1, COLOR_SCORE)
