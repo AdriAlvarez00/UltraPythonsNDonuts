@@ -25,6 +25,7 @@ void Snake::to_bin()
 	_msg["direction"]["x"] = dir.getX();
 	_msg["direction"]["y"] = dir.getY();
 	_msg["body"] = {};
+	_msg["alive"] = alive;
 	for (auto it = body.begin(); it != body.end(); it++)
 	{
 		json v2;
@@ -43,6 +44,7 @@ void Snake::to_bin()
 int Snake::from_bin(json data)
 {
 	id = data["playerId"];
+	alive = data["alive"];
 	dir = Vector2(data["direction"]["x"], data["direction"]["y"]);
 	body.clear();
 	for (auto it = data["body"].begin(); it != data["body"].end(); ++it)

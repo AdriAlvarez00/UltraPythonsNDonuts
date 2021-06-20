@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 import json
-from os import sendfile
-from typing import Dict
 from serializable import Serializable
 import pygame
 import sys
@@ -78,6 +76,7 @@ class Snake(Serializable):
         self.direction = right
         self.score = 0
         # este bool evita que la serpiente se pise a si misma al hacer buffering de input en el mismo frame 
+        self.alive = True
         # self.turned = False     # es dependiente de la implementación del juego, no se si será<necesario serializarlo 
         self.id = id
         self._json = dict()
@@ -88,6 +87,7 @@ class Snake(Serializable):
         json["direction"] = dict()
         json["direction"]["x"] = int(self.direction.x)
         json["direction"]["y"]= int(self.direction.y)
+        json["alive"] = self.alive
         json["body"] = []
         
         for b in self.positions:
@@ -107,6 +107,7 @@ class Snake(Serializable):
         for p in json["body"]:
             self.positions.append(Vector2(p["x"],p["y"]))
         self.length = json["length"]
+        self.alive = json["alive"]
 
     def get_head_position(self):
         return self.positions[0]
