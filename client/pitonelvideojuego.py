@@ -18,7 +18,7 @@ TILE_SIZE = 24
 
 GAME_SPEED = 5  # esto determina la velocidad del juego (mayor -> mas rapido)
 
-COLOR_SNAKES = ((50, 100, 20),(100, 20, 90),(204, 122, 0),(0, 153, 255))
+COLOR_SNAKES = ((80, 80, 80),(50, 100, 20),(100, 20, 90),(204, 122, 0),(0, 153, 255)) #corresponden a cada id, los cadaveres se pintan con id0
 COLOR_DEAD = (200,200,200)
 SIZE_SNAKE = 7  # tam inicial
 
@@ -147,6 +147,10 @@ class Snake(Serializable):
         i = 0
         borderMax = 10  #en pixeles
         borderMin = 2   #en pixeles
+
+        color = COLOR_SNAKES[self.id]
+        if(not self.alive): color = COLOR_SNAKES[0]
+
         for p in self.positions:
             porc = i/len(self.positions)
             pos = (p.x*TILE_SIZE + int(porc*borderMax/2) + borderMin,
@@ -157,7 +161,7 @@ class Snake(Serializable):
 
             # rectangulo que vamos a pintar (pos_x,pos_y, tam_x,tam_y)
             r = pygame.Rect(pos, tam)
-            pygame.draw.rect(surface, COLOR_SNAKES[self.id-1], r)  # lo pintamos
+            pygame.draw.rect(surface, color, r)  # lo pintamos
             
             # efecto de hacer chikita la colae
             #pygame.draw.rect(surface, COLOR_BG_1, r, 
