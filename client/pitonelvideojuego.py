@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 import json
-from os import sendfile
-from typing import Dict
 from serializable import Serializable
 import pygame
 import sys
@@ -21,6 +19,7 @@ TILE_SIZE = 24
 GAME_SPEED = 5  # esto determina la velocidad del juego (mayor -> mas rapido)
 
 COLOR_SNAKES = ((50, 100, 20),(100, 20, 90),(204, 122, 0),(0, 153, 255))
+COLOR_DEAD = (200,200,200)
 SIZE_SNAKE = 7  # tam inicial
 
 TILE_BG = True  # patron de ajedrez
@@ -80,6 +79,7 @@ class Snake(Serializable):
         # este bool evita que la serpiente se pise a si misma al hacer buffering de input en el mismo frame 
         self.turned = False     # es dependiente de la implementación del juego, no se si será<necesario serializarlo 
         self.id = id;
+        self.alive = True
         self._json = dict()
 
     def get_json(self):
@@ -88,6 +88,7 @@ class Snake(Serializable):
         json["direction"] = dict()
         json["direction"]["x"] = int(self.direction.x)
         json["direction"]["y"]= int(self.direction.y)
+        json["alive"] = self.alive
         json["body"] = []
         
         for b in self.positions:
@@ -107,6 +108,7 @@ class Snake(Serializable):
         for p in json["body"]:
             self.positions.append(Vector2(p["x"],p["y"]))
         self.length = json["length"]
+        self.alive = json["alive"]
 
     def get_head_position(self):
         return self.positions[0]
