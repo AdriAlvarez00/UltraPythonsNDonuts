@@ -27,25 +27,36 @@ void SnakeServer::on_connection_requested(Socket *sc, LoginPetition &pet)
     sc = nullptr;
     clients.push_back(std::make_pair(response.uid, std::move(uptr)));
 
-    //TODO refinar la creacion de serpientes nuevas
     if (response.uid == 1)
     {
-        Snake s(response.uid, {Vector2(6, 5), Vector2(5, 5)}, Vector2(0, 1));
+        Snake s(response.uid, {Vector2(3, 3), Vector2(2, 3)}, Vector2(1, 0));
         gameState.addSnake(s);
     }
-    else
+    else if(response.uid == 2)
     {
-        Snake s(response.uid, {Vector2(12, 15), Vector2(11, 15)}, Vector2(0, -1));
+        Snake s(response.uid, {Vector2(17, 17), Vector2(18, 17)}, Vector2(-1, 0));
+        gameState.addSnake(s);
+    }
+        else if(response.uid == 3)
+    {
+        Snake s(response.uid, {Vector2(3, 17), Vector2(3,18)}, Vector2(0, -1));
+        gameState.addSnake(s);
+    }
+        else if(response.uid == 4)
+    {
+        Snake s(response.uid, {Vector2(17, 3), Vector2(17, 2)}, Vector2(0, 1));
         gameState.addSnake(s);
     }
 
     //Aumentamos el buffer de input
-    receivedInputs.push_back(Vector2(0,0));
+    receivedInputs.push_back(Vector2(0, 0));
 }
 
-void SnakeServer::broadcast_state(){
-    for(auto it = clients.begin();it!=clients.end();++it){
-        socket.send(gameState,*(*it).second,MessageID::GAMESTATE);
+void SnakeServer::broadcast_state()
+{
+    for (auto it = clients.begin(); it != clients.end(); ++it)
+    {
+        socket.send(gameState, *(*it).second, MessageID::GAMESTATE);
     }
 }
 
@@ -76,23 +87,51 @@ void SnakeServer::handle_messages()
             inputR.from_bin(recv["OBJ"]);
             handle_input(msgSock, inputR);
         }
+        else if (id == MessageID::REQUESTSTART)
+        {
+            if (connectedPlayers > 1 && get_connected_id(msgSock)==1)
+            {
+                StartGame start;
+                for (auto it = clients.begin(); it != clients.end(); ++it)
+                {
+                    socket.send(start, *(*it).second, MessageID::GAMESTART);
+                }
+                state = ServerState::RUNNNING;
+            }
+        }
     }
 };
 
-void SnakeServer::run_logic(){
-    while(true){
-        std::this_thread::sleep_for(std::chrono::milliseconds(500) );
+void SnakeServer::run_logic()
+{
+    while (true)
+    {
 
-        mtx_input.lock();
-        for(int i = 0;i<connectedPlayers;i++){
-            gameState.moveSnake(i+1,receivedInputs[i]);
+        if (state == ServerState::RUNNNING)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+            mtx_input.lock();
+            for (int i = 0; i < connectedPlayers; i++)
+            {
+                gameState.moveSnake(i + 1, receivedInputs[i]);
+            }
+            mtx_input.unlock();
+
+            gameState.update();
+            gameState.draw();
+            //No tiene sentido hacer broadcast si no actualizamos el estado;
+            broadcast_state();
         }
-        mtx_input.unlock();
-        
-        gameState.update();
-        gameState.draw();
-        //No tiene sentido hacer broadcast si no actualizamos el estado;
-        broadcast_state();
+        else if (state == ServerState::WAITING)
+        {
+            //Si no esperamos un poco no podemos ver el estado en el servidor
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+            gameState.draw();
+            //No tiene sentido hacer broadcast si no actualizamos el estado;
+            broadcast_state();
+        }
     }
 }
 
@@ -114,7 +153,7 @@ void SnakeServer::handle_input(Socket *sock, Vector2 input)
     //Modificamos el input del jugador correspondiente, se podria usar un MAP pero para
     //tan pocos jugadores no creo que afecte, podria ser hasta peor el coste logaritmico
     //mtx_input.lock();
-    std::cout << "connid: " <<  get_connected_id(sock) << std::endl;
-    receivedInputs[get_connected_id(sock)-1]=input;
+    std::cout << "connid: " << get_connected_id(sock) << std::endl;
+    receivedInputs[get_connected_id(sock) - 1] = input;
     mtx_input.unlock();
 }

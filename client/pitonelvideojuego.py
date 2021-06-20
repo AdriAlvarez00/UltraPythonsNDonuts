@@ -9,6 +9,7 @@ import random
 from pygame.math import Vector2
 from gameSocket import GameSocket
 import threading
+from enum import Enum
 
 # el tamaño de la ventana y el gridsize tienen que ser divisible, y de resultado un n par, si no se mama (hay que añadir excepciones y tal)
 screen_width = 550
@@ -19,7 +20,7 @@ TILE_SIZE = 24
 
 GAME_SPEED = 5  # esto determina la velocidad del juego (mayor -> mas rapido)
 
-COLOR_SNAKES = ((50, 100, 20),(100, 20, 90))
+COLOR_SNAKES = ((50, 100, 20),(100, 20, 90),(204, 122, 0),(0, 153, 255))
 SIZE_SNAKE = 7  # tam inicial
 
 TILE_BG = True  # patron de ajedrez
@@ -31,7 +32,7 @@ SIZE_FOOD = 8
 SCORE_PER_FOOD = 1
 LENGTH__PER_FOOD = 2
 
-COLOR_SCORE = (0, 0, 0)
+COLOR_SCORE = (255, 0, 0)
 SIZE_SCORE = 100
 
 
@@ -43,10 +44,30 @@ left = Vector2(-1,0)
 right = Vector2(1,0)
 
 #ids de los headers de red
-LOGIN = 0
-RESPONSE = 1
-INPUT = 2
-GAMESTATE = 3
+class messageID(Enum):
+    LOGIN = 0
+    RESPONSE = 1
+    INPUT = 2
+    GAMESTATE = 3
+    GAMESTART = 4
+    REQUESTSTART = 5
+    QUIT = 6
+    GAMEOVER = 7 
+
+    def __int__(self):
+        return self.value
+
+class ClientState(Enum):
+    WAITING = 0
+    PLAYING = 1
+    WON = 2
+    LOST = 3
+
+    def __int__(self):
+        return self.value
+
+g_cState = ClientState.WAITING
+g_thisClientID = -1
 
 class Snake(Serializable):
     def __init__(self,id):
@@ -214,7 +235,7 @@ class GameState(Serializable):
     def __init__(self):
         self.snakes = [Snake(1)]
         self.food = Food()
-        self.food.randomize_position(self.snakes[0])
+        self.food.position = Vector2(10,10)
             
 
     def update(self):
@@ -236,13 +257,15 @@ class GameState(Serializable):
             json["snakes"].append(snake.get_json())
         return json
     def from_json(self, json):
-        self.food.position = Vector2(json["food"]["x"],json["food"]["y"])
+        print(json)
         #TODO asegurarnos de que vayan en orden o determinar seguridad de 
 
         while(len(json["snakes"])>len(self.snakes)):
             self.snakes.append(Snake(0))
         for snake, snakeJSON in zip(self.snakes,json["snakes"]):
             snake.from_json(snakeJSON)
+        self.food.position = Vector2(json["food"]["x"],json["food"]["y"])
+        
 
 
     def draw(self,surface):
@@ -258,11 +281,25 @@ def inputThread(socket):
         sendInput(socket)
 
 def recGameStateThread(gs, socket):
+    global g_cState
+    global g_thisClientID
     while(True):
         jObj = socket.recvObj()
-        if jObj["ID"] == GAMESTATE:
+        i = jObj["ID"]
+        if i == int(messageID.GAMESTART):
+            print('recvstart')
+            g_cState = ClientState.PLAYING
+        elif i == int(messageID.GAMESTATE):
             print(jObj["OBJ"])
             gs.from_json(jObj["OBJ"])
+        elif i == int(messageID.GAMEOVER):
+            winner = jObj["OBJ"]["winner"]
+            if  winner == g_thisClientID:
+                g_cState = ClientState.WON
+            else:
+                g_cState = ClientState.LOST
+        else:
+            print('ningu')
 
 def vec2toJson(v2):
     json = dict()
@@ -285,8 +322,14 @@ def sendInput(socket):
                 movDir = Vector2(-1,0)
             elif event.key == pygame.K_RIGHT:
                 movDir = Vector2(1,0)
+            #el cliente puede pedir que empiece la partida, pero solo el primero 
+            elif event.key == pygame.K_RETURN:
+                socket.send({},messageID.REQUESTSTART)
+            elif event.key == pygame.K_ESCAPE:
+                socket.send({},messageID.QUIT)
+    
     if movDir != Vector2(0,0):
-        socket.send(vec2toJson(movDir), INPUT)
+        socket.send(vec2toJson(movDir), messageID.INPUT)
 
 def conectaServer(socket, nick):
     socket.connect('127.0.0.1',55555)
@@ -294,10 +337,10 @@ def conectaServer(socket, nick):
     jNick = dict()
     jNick["nick"] = str(nick)
 
-    socket.send(jNick, LOGIN)
+    socket.send(jNick, messageID.LOGIN)
 
     jObj = socket.recvObj()
-    if jObj["ID"] == RESPONSE:
+    if jObj["ID"] == messageID.RESPONSE:
         return jObj["OBJ"]["playerId"]
     else:
         a = 2
@@ -307,17 +350,18 @@ def main():
 
     socketCliente = GameSocket()
 
-    idCliente = conectaServer(socketCliente, "snake")
+    g_thisClientID = conectaServer(socketCliente, "snake")
 
     global gs
     gs = GameState()
 
 
+
     #TODO mutex gamestatate
-    t1 = threading.Thread(target = recGameStateThread, args=(gs, socketCliente, ))
+    t1 = threading.Thread(target = recGameStateThread, args=(gs, socketCliente))
     t2 = threading.Thread(target = inputThread, args=(socketCliente, ))
     t1.start()
-    t2.start()
+    #t2.start()
 
     pygame.init()  # inicializamos movidas de pygame
 
@@ -346,8 +390,11 @@ def main():
         # esto manda la surface a la ventana para pintarla
         screen.blit(surface, (marginL, marginT))
 
-        # text = myfont.render("Donuts {0}".format(snake.score), 1, COLOR_SCORE)
-        #screen.blit(text, (5, 10))  # lo mismo de arriba pero con el texto
+        if(g_cState == ClientState.WAITING):
+            text = myfont.render("WAITING, PLAYER 1 PRESS START", 1, COLOR_SCORE)
+            screen.blit(text, (5, 10))  # lo mismo de arriba pero con el texto
+        elif(g_cState == ClientState.WON):
+            a = 3
 
         pygame.display.update()  # esto updatea la ventana en si
 

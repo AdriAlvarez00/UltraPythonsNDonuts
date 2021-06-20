@@ -18,20 +18,14 @@ class GameSocket():
     def send(self,object,headerId):
 
         j = dict()
-        j["ID"] = headerId;
+        j["ID"] = int(headerId);
 
         #TODO buscar una forma mas elegante de hacer esto
         if(isinstance(object,Serializable)):
-            print('serializando un gameobject')
             object.to_bin()
             j["OBJ"] = object._json
         else:
-            print('enviando un json')
-            print(object)
             j["OBJ"] = object
-            print(j)
-            print(self.host)
-            print(self.port)
             
 
         self.sock.sendto(json.dumps(j).encode(),(self.host,self.port)) 
