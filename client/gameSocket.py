@@ -1,6 +1,4 @@
-from google import protobuf
 import socket
-import sys
 from serializable import Serializable
 import json
 
