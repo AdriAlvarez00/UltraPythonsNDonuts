@@ -22,6 +22,8 @@ private:
     uint32_t connectedPlayers;
     GameState gameState;
 
+    int dbg_packet_loss;
+
     enum MessageID
     {
         LOGINPETITION = 0,
@@ -43,7 +45,7 @@ private:
     ServerState state;
 
 public:
-    SnakeServer(const char *host, const char *port) : socket(host, port), connectedPlayers(0), clients(0)
+    SnakeServer(const char *host, const char *port,int packetloss) : socket(host, port),dbg_packet_loss(packetloss), connectedPlayers(0), clients(0)
     {
         socket.bind();
         state = ServerState::WAITING;

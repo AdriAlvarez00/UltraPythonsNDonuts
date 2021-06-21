@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
+
+from pygame.display import update
 from serializable import Serializable
 import pygame
 import sys
@@ -8,6 +10,8 @@ from pygame.math import Vector2
 from gameSocket import GameSocket
 import threading
 from enum import Enum
+from threading import Lock
+import time
 
 # el tamaño de la ventana y el gridsize tienen que ser divisible, y de resultado un n par, si no se mama (hay que añadir excepciones y tal)
 screen_width = 700
@@ -41,6 +45,8 @@ up =  Vector2(0,-1)
 down = Vector2(0,1)
 left = Vector2(-1,0)
 right = Vector2(1,0)
+
+mtx_gamestate = Lock()
 
 #ids de los headers de red
 class messageID(Enum):
@@ -101,7 +107,6 @@ class Snake(Serializable):
         
         return json
     def from_json(self,json):
-        print(f'loaded id {json["playerId"]}')
         self.id = json["playerId"]
         self.direction = Vector2(json["direction"]["x"],json["direction"]["y"])
         self.positions.clear()
@@ -211,16 +216,17 @@ class Food():           # Donuts (*/ω＼*)
         self.color = COLOR_FOOD
 
     # ponemos el donut en un lugar aleatorio no ocupado por la serpiente
-    def randomize_position(self, snake):
+    def randomize_position(self, snakes):
+        
         self.position = Vector2(random.randint(0, GRID_SIZE-1),
-                         random.randint(0, GRID_SIZE-1))
+                         random.randint(0, GRID_SIZE-1))        
 
         # lo unico mas dulce que un donut es la recursion (●'◡'●)
-        if self.position in snake.positions:
-            self.randomize_position(snake)
+        for snake in snakes:
+            if self.position in snake.positions:
+                self.randomize_position(snakes)
 
     def draw(self, surface):
-        # TODO recuperar los efectos visuales chulos del donut
         r = pygame.Rect((self.position.x*TILE_SIZE + 2, self.position.y*TILE_SIZE + 2) # magia para que parezca un donut de verdad
                          , (int(TILE_SIZE*0.8), int(TILE_SIZE*0.8)))
         pygame.draw.rect(surface, self.color, r, SIZE_FOOD)
@@ -242,17 +248,18 @@ class GameState(Serializable):
         self.snakes = [Snake(1)]
         self.food = Food()
         self.food.position = Vector2(10,10)
-            
+        self.tick = 0
 
-    # def update(self):
-    #     for snake in self.snakes:
-    #         snake.handle_keys()
-    #         snake.move()
+    def update(self):
+        self.tick= self.tick+1
+        for snake in self.snakes:
+            snake.move()
             
-    #         if snake.get_head_position() == self.food.position:
-    #             snake.length += LENGTH__PER_FOOD
-    #             snake.score += SCORE_PER_FOOD
-    #             self.food.randomize_position(self.snakes[0])
+            if snake.get_head_position() == self.food.position:
+                snake.length += LENGTH__PER_FOOD
+                snake.score += SCORE_PER_FOOD
+                self.food.randomize_position(self.snakes)
+        
     def get_json(self):
         json = dict()
         json["food"] = dict()
@@ -261,16 +268,15 @@ class GameState(Serializable):
         json["snakes"] = []
         for snake in self.snakes:
             json["snakes"].append(snake.get_json())
+        json["tick"] = self.tick
         return json
     def from_json(self, json):
-        #print(json)
-        #TODO asegurarnos de que vayan en orden o determinar seguridad de 
-
         while(len(json["snakes"])>len(self.snakes)):
             self.snakes.append(Snake(0))
         for snake, snakeJSON in zip(self.snakes,json["snakes"]):
             snake.from_json(snakeJSON)
         self.food.position = Vector2(json["food"]["x"],json["food"]["y"])
+        self.tick = json["tick"]
         
 
 
@@ -299,8 +305,16 @@ def recGameStateThread(gs, socket, g_thisClientID):
         elif i == int(messageID.GAMESTATE):
             #print(jObj["OBJ"])
             print("Recibido gamestate")
+            mtx_gamestate.acquire()
+            diff = jObj["OBJ"]["tick"] - gs.tick
+            print(f'''rec {jObj["OBJ"]["tick"]} we in {gs.tick}''')
             gs.from_json(jObj["OBJ"])
             if(not gs.snakes[g_thisClientID - 1].alive): g_cState = ClientState.LOST
+            else: 
+                for i in range(diff): 
+                    print("stepsip")
+                    gs.update()
+            mtx_gamestate.release()
         elif i == int(messageID.GAMEOVER):
             winner = jObj["OBJ"]["idWinner"]
             #print(f"Winner winner chicken diner id:{winner} , idpropia: {g_thisClientID}")
@@ -406,21 +420,42 @@ def drawUI(screen, idCliente):
         text = font.render("Nooooo, perdiste :c", 1, COLOR_SCORE)
         screen.blit(text, (10, 5))  # lo mismo de arriba pero con el texto
 
+def drawNPredict(gs,screen,surface,surfBordes,marginL,marginT):
+    while True:
+        time.sleep(1/3)
+        mtx_gamestate.acquire()
+        print("drawn")
+        gs.draw(surface)
+        mtx_gamestate.release()
+
+
+        drawMargins(surfBordes)
+        # esto manda la surface a la ventana para pintarla
+        screen.blit(surfBordes, ((0, 0)))
+        #calculamos los bordes y los ponemos
+        r = pygame.Rect((0,0),(TILE_SIZE * GRID_SIZE, TILE_SIZE * GRID_SIZE))
+        screen.blit(surface, (marginL, marginT), r)
+
+        drawUI(screen, g_thisClientID)
+
+        pygame.display.update()  # esto updatea la ventana en si
+        
+        #Predeciremos el siguiente frame sin input, que se renderizara
+        #Si se pierde el paquete
+        if(g_cState == ClientState.PLAYING):
+            mtx_gamestate.acquire()
+            print("predicted")
+            gs.update()
+            mtx_gamestate.release()
+
 def main():
 
     socketCliente = GameSocket()
 
     g_thisClientID = conectaServer(socketCliente, "snake")
-    #print(f"la id actual es {g_thisClientID}")
 
-    global gs
     gs = GameState()
 
-    #TODO mutex gamestatate
-    t1 = threading.Thread(target = recGameStateThread, args=(gs, socketCliente, g_thisClientID))
-    t2 = threading.Thread(target = inputThread, args=(socketCliente, ))
-    t1.start()
-    #t2.start()
 
     pygame.init()  # inicializamos movidas de pygame
 
@@ -445,21 +480,15 @@ def main():
     #Comenzamos a ejecutar un bucle de input
     #Bucle de red/render
 
+
+    t1 = threading.Thread(target = recGameStateThread, args=(gs, socketCliente, g_thisClientID))
+    t2 = threading.Thread(target = drawNPredict, args=(gs,screen,surface,surfBordes,marginL,marginT ))
+    t1.start()
+    t2.start()
+
     while (True):
         clock.tick(GAME_SPEED)
-
         sendInput(socketCliente)
-        gs.draw(surface)
-        drawMargins(surfBordes)
-        # esto manda la surface a la ventana para pintarla
-        screen.blit(surfBordes, ((0, 0)))
-        #calculamos los bordes y los ponemos
-        r = pygame.Rect((0,0),(TILE_SIZE * GRID_SIZE, TILE_SIZE * GRID_SIZE))
-        screen.blit(surface, (marginL, marginT), r)
-
-        drawUI(screen, g_thisClientID)
-
-        pygame.display.update()  # esto updatea la ventana en si
 
 
 main()  # 1 linea de juego am I right boys (⌐■_■)
