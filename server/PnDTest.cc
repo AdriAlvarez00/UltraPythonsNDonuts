@@ -1,4 +1,3 @@
-#include "snake.pb.h"
 #include "SnakeGames.h"
 #include "iostream"
 #include "fstream"
@@ -10,39 +9,10 @@
 #define SNAKE X
 #define WALL #
 
-void draw(const Snake &snake, const Vector2 &fruit)
-{
-	printf("\033c");
-	for (int y = 0; y < GRID_SIZE; y++)
-	{
-		for (int x = 0; x < GRID_SIZE; x++)
-		{
-			if (x == 0 || x == GRID_SIZE - 1 || y == 0 || y == GRID_SIZE - 1)
-			{
-				printf("#");
-			}
-			else if (Vector2(x, y) == fruit)
-			{
-				printf("*");
-			}
-			//No es eficiente pero es debug
-			else if (snake.collidesWithBody(Vector2(x, y)))
-			{
-				printf("O");
-			}
-			else
-			{
-				printf(" ");
-			}
-		}
-		printf("\n");
-	}
-}
-
 int main()
 {
 
-	Snake serpi(1);
+	Snake serpi;
 	// serpi.to_bin();
 
 	// std::ofstream file;
@@ -68,53 +38,34 @@ int main()
 	Vector2 fruit(5, 5);
 	Socket sock("127.0.0.1", "55555");
 	sock.bind();
-	Header header;
 	int i = 0;
 
 	Socket *msgSock = new Socket(sock);
 
-	// while (true)
-	// {
-	// 	std::cout << "Waiting for next msg" << std::endl;
-	// 	//sock.recvHeader(msgSock, &header);
-	// 	//std::cout << "received: " << header.getID() << std::endl;
-	// 	sock.loadObj(serpi, msgSock);
-	// 	//std::cout << "llego una serpi con id: " << serpi.getSnakeID() << std::endl;
-	// 	serpi.print(std::cout);
-	// }
+	while (true)
+	{
+		std::cout << "Waiting for next msg" << std::endl;
+		//sock.recvHeader(msgSock, &header);
+		//std::cout << "received: " << header.getID() << std::endl;
+		json obj = sock.recvObj(msgSock);
+		
+		if (obj["ID"]== 48)
+		{
+			std::cout << "Cargando serpiente";
+			serpi.from_bin(obj["OBJ"]);
+		}
+		//std::cout << "llego una serpi con id: " << serpi.getSnakeID() << std::endl;
+		serpi.print(std::cout);
+	}
 
-	draw(serpi, fruit);
 	while (running)
 	{
-		sock.recvHeader(msgSock, &header);
-		sock.loadObj(serpi, msgSock);
-		// char in = getchar();
-		// char enter = getchar();
-		// switch (in)
-		// {
-		// case 'a':
-		// 	serpi.setDir(Vector2(-1, 0));
-		// 	break;
-		// case 'd':
-		// 	serpi.setDir(Vector2(1, 0));
-		// 	break;
-		// case 'w':
-		// 	serpi.setDir(Vector2(0, -1));
-		// 	break;
-		// case 's':
-		// 	serpi.setDir(Vector2(0, 1));
-		// 	break;
-		// case 'b':
-		// 	running = false;
-		// 	break;
-		// default:
-		// 	break;
-		// }
+		sock.recvObj(msgSock);
 
 		if (serpi.getHead() == fruit)
 			serpi.increaseLength(5);
-		serpi.move();
-		draw(serpi, fruit);
+		serpi.move(20);
+		//draw(serpi, fruit);
 		std::cout << i;
 		i++;
 	}

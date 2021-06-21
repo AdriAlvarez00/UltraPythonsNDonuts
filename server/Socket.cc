@@ -1,13 +1,10 @@
 #include <string.h>
 #include <sys/socket.h>
-#include <google/protobuf/io/zero_copy_stream_impl_lite.h>
 
 #include "Serializable.h"
 #include "Socket.h"
-#include "snake.pb.h"
 #include "SnakeGames.h"
 
-using namespace google::protobuf::io;
 
 Socket::Socket(const char * address, const char * port):sd(-1)
 {
@@ -35,26 +32,15 @@ Socket::Socket(const char * address, const char * port):sd(-1)
 	sa_len = result->ai_addrlen;
 }
 
-void Socket::recvHeader(Socket * &sock,Header* h){
-    char buf[MAX_MESSAGE_SIZE];
-    int rc = ::recv(sd,buf,MAX_MESSAGE_SIZE,MSG_PEEK);
-    google::protobuf::uint32 sz;
-    google::protobuf::io::ArrayInputStream ais(buf,4);
-    CodedInputStream cis(&ais);
-    cis.ReadVarint32(&sz);
-    h->from_bin(cis);
-}
-
-int Socket::loadObj(Serializable &obj, Socket * &sock)
+json Socket::recvObj(Socket * &sock)
 {
     struct sockaddr sa;
     socklen_t sa_len = sizeof(struct sockaddr);
 
     char buffer[MAX_MESSAGE_SIZE];
+    //memset(buffer,0,MAX_MESSAGE_SIZE);
 
     ssize_t bytes = ::recvfrom(sd, buffer, MAX_MESSAGE_SIZE,0, &sa, &sa_len);
-    Header sample;
-    sample.to_bin();
 
     if ( bytes <= 0 )
     {
@@ -66,40 +52,38 @@ int Socket::loadObj(Serializable &obj, Socket * &sock)
         sock = new Socket(&sa, sa_len);
     }
 
-    google::protobuf::uint32 sz;
-    google::protobuf::io::ArrayInputStream ais(buffer,MAX_MESSAGE_SIZE);
-    CodedInputStream cis(&ais);
-    cis.ReadVarint32(&sz);
-    auto lim = cis.PushLimit(sz);
-    sample.from_bin(cis);
-    cis.PopLimit(lim);
-    obj.from_bin(cis);
+    std::cout << "bytes recv " << bytes << std::endl;
+    std::cout << "recv " << buffer << std::endl;
 
-    return 0;
+    std::string bs(buffer,bytes);
+    json rec = json::parse(bs.c_str());
+    //json joke = json::parse("{\"ID\":48,\"OBJ\":{\"body\":[{\"x\":6,\"y\":9},{\"x\":5,\"y\":9}],\"direction\":{\"x\":1,\"y\":0},\"length\":2,\"playerId\":5}}");
+
+    std::cout << rec << std::endl;
+    std::cout << rec["ID"] << std::endl;
+    std::cout << rec["OBJ"] << std::endl;
+
+    //std::cout << joke << std::endl;
+
+    return rec;
 }
 
-int Socket::send(Serializable& obj, const Socket& sock)
+int Socket::send(Serializable& obj, const Socket& sock,uint32_t id)
 {
-    //Creamos la cabecera
-    Header header(obj.getID());
-    header.to_bin();
+    json j;
+    j["ID"] = id;
+
     obj.to_bin();
-    
-    int sz = header.size()+4+obj.size();
+    j["OBJ"] = obj.getJSON();
 
-    char* pkg = new char[sz];
-    google::protobuf::io::ArrayOutputStream aos(pkg,sz);
-
-    CodedOutputStream *cos= new CodedOutputStream(&aos);
-    cos->WriteVarint32(header.size());
-    cos->WriteString(header.data());
-    cos->WriteString(obj.data());
-    
-
+    std::string pkg = j.dump();
+    size_t sz = pkg.size();
     //Serializar el objeto
     //Enviar el objeto binario a sock usando el socket sd
-    int rc = sendto(sd,(void*)pkg,sz,0,&sock.sa,sock.sa_len);
+
+    int rc = sendto(sd,(void*)pkg.c_str(),sz,0,&sock.sa,sock.sa_len);
     
+    //int rc = 0;
     if(rc != -1)
         return 0;
     return -1;

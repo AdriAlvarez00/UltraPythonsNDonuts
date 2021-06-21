@@ -9,7 +9,8 @@
 #include <stdexcept>
 
 #include <ostream>
-#include <google/protobuf/message.h>
+#include "json.hpp"
+using json = nlohmann::json;
 // -----------------------------------------------------------------------------
 // Definiciones adelantadas
 // -----------------------------------------------------------------------------
@@ -74,7 +75,6 @@ public:
      * 
      * 
     */
-   void recvHeader(Socket * &sock,Header* header);
 
     /**
      *  Recibe un mensaje de aplicación
@@ -87,13 +87,13 @@ public:
      *
      *    @return 0 en caso de éxito o -1 si error (cerrar conexión)
      */
-    int loadObj(Serializable &obj, Socket * &sock);
+    json recvObj(Socket * &sock);
 
-    int recv(Serializable &obj) //Descarta los datos del otro extremo
+    json recv() //Descarta los datos del otro extremo
     {
         Socket * s = 0;
 
-        return loadObj(obj, s);
+        return recvObj(s);
     }
 
     /**
@@ -105,7 +105,7 @@ public:
      *
      *    @return 0 en caso de éxito o -1 si error
      */
-    int send(Serializable &obj, const Socket& sock);
+    int send(Serializable &obj, const Socket& sock,uint32_t id);
 
     /**
      *  Enlaza el descriptor del socket a la dirección y puerto

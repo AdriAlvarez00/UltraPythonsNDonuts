@@ -1,10 +1,10 @@
 #ifndef SERIALIZABLE_H_
 #define SERIALIZABLE_H_
 
-#include <google/protobuf/any.h>
 #include <stdlib.h>
-#include <google/protobuf/message.h>
-#include "snake.pb.h"
+#include <string>
+#include "json.hpp"
+using json = nlohmann::json;
 
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -24,13 +24,9 @@
 class Serializable
 {
 public:
-    Serializable(PnD::MessageID bId = PnD::MessageID::LOGINPETITION):_id(bId) { };
+    Serializable(){ };
 
-    virtual ~Serializable(){
-        //TODO investigar por que da error si hacemos
-        // delete _message
-        // Explota cuando snake intenta liberar la memoria de sus Vec2
-    };
+    virtual ~Serializable()=default;
 
     /**
      *  Genera la representación binaria de la clase. Debe inicializar
@@ -43,7 +39,7 @@ public:
      *    @param data representación binaria del objeto
      *    @return 0 si éxito -1 en caso contrario
      */
-    virtual int from_bin(google::protobuf::io::CodedInputStream& cis) = 0;
+    virtual int from_bin(json data) = 0;
     /**
      *  Devuelve un puntero al buffer interno con la representación del objeto.
      *  Debe inicializarse previamente via Serializable::to_bin()
@@ -67,17 +63,14 @@ public:
         return _size;
     }
 
-    PnD::MessageID getID()
-    {
-        return _id;
-    }
+    json getJSON()const{return _json;}
 
 protected:
     std::string _data;
 
     int32_t _size;
 
-    PnD::MessageID _id;
+    json _json;
 };
 
 // -----------------------------------------------------------------------------
