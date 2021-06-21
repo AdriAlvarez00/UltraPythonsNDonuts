@@ -18,7 +18,8 @@ TILE_SIZE = 24
 
 GAME_SPEED = 5  # esto determina la velocidad del juego (mayor -> mas rapido)
 
-COLOR_SNAKES = ((50, 50, 50),(50, 100, 20),(100, 20, 90),(204, 122, 0),(0, 153, 255))
+#(rgb(50,50,50),rgb(50,100,20),rgb(100,20,90),rgb(204,122,0),rgb(0,153,255))
+COLOR_SNAKES = ((50,50,50),(50,100,20),(100,20,90),(204,122,0),(0,153,255))
 SIZE_SNAKE = 7  # tam inicial
 
 TILE_BG = True  # patron de ajedrez
@@ -30,10 +31,10 @@ SIZE_FOOD = 8
 SCORE_PER_FOOD = 1
 LENGTH__PER_FOOD = 2
 
-COLOR_SCORE = (255, 0, 0)
+COLOR_SCORE = (20,20,20)
 SIZE_SCORE = 100
 
-COLOR_BORDES = (100, 80, 60)
+COLOR_BORDES = (80,170,200)
 
 # direcciones usadas para el movimiento de la serpiente
 up =  Vector2(0,-1)
@@ -243,15 +244,15 @@ class GameState(Serializable):
         self.food.position = Vector2(10,10)
             
 
-    def update(self):
-        for snake in self.snakes:
-            snake.handle_keys()
-            snake.move()
+    # def update(self):
+    #     for snake in self.snakes:
+    #         snake.handle_keys()
+    #         snake.move()
             
-            if snake.get_head_position() == self.food.position:
-                snake.length += LENGTH__PER_FOOD
-                snake.score += SCORE_PER_FOOD
-                self.food.randomize_position(self.snakes[0])
+    #         if snake.get_head_position() == self.food.position:
+    #             snake.length += LENGTH__PER_FOOD
+    #             snake.score += SCORE_PER_FOOD
+    #             self.food.randomize_position(self.snakes[0])
     def get_json(self):
         json = dict()
         json["food"] = dict()
@@ -262,7 +263,7 @@ class GameState(Serializable):
             json["snakes"].append(snake.get_json())
         return json
     def from_json(self, json):
-        print(json)
+        #print(json)
         #TODO asegurarnos de que vayan en orden o determinar seguridad de 
 
         while(len(json["snakes"])>len(self.snakes)):
@@ -285,9 +286,10 @@ def inputThread(socket):
     while(True):
         sendInput(socket)
 
-def recGameStateThread(gs, socket):
+#TODO preguntarle esto a adri
+def recGameStateThread(gs, socket, g_thisClientID):
     global g_cState
-    global g_thisClientID
+    #global g_thisClientID
     while(True):
         jObj = socket.recvObj()
         i = jObj["ID"]
@@ -295,16 +297,17 @@ def recGameStateThread(gs, socket):
             print('recvstart')
             g_cState = ClientState.PLAYING
         elif i == int(messageID.GAMESTATE):
-            print(jObj["OBJ"])
+            #print(jObj["OBJ"])
+            print("Recibido gamestate")
             gs.from_json(jObj["OBJ"])
+            if(not gs.snakes[g_thisClientID - 1].alive): g_cState = ClientState.LOST
         elif i == int(messageID.GAMEOVER):
-            winner = jObj["OBJ"]["winner"]
+            winner = jObj["OBJ"]["idWinner"]
+            #print(f"Winner winner chicken diner id:{winner} , idpropia: {g_thisClientID}")
             if  winner == g_thisClientID:
                 g_cState = ClientState.WON
-            else:
-                g_cState = ClientState.LOST
         else:
-            print('ningu')
+            print('No existe ningun mensaje con ese mensajeId')
 
 def vec2toJson(v2):
     json = dict()
@@ -337,7 +340,8 @@ def sendInput(socket):
         socket.send(vec2toJson(movDir), messageID.INPUT)
 
 def conectaServer(socket, nick):
-    ip = input("Enter server ip: ")
+    ip = "127.0.0.1"
+    #ip = input("Enter server ip: ")
     socket.connect(ip,55555)
     
     jNick = dict()
@@ -346,7 +350,11 @@ def conectaServer(socket, nick):
     socket.send(jNick, messageID.LOGIN)
 
     jObj = socket.recvObj()
-    if jObj["ID"] == messageID.RESPONSE:
+    a = jObj["ID"]
+    #print(f"respuesta al login: {a}")
+    if jObj["ID"] == int(messageID.RESPONSE):
+        a = jObj["OBJ"]["playerId"]
+        #print(f"mensaje de id de jugador id: {a}")
         return jObj["OBJ"]["playerId"]
     else:
         a = 2
@@ -373,19 +381,43 @@ def drawMargins(surface):
     r = pygame.Rect((screen_width - grosorH,0),(grosorH, screen_height)) #borde der
     pygame.draw.rect(surface, COLOR_BORDES, r)
 
+def getFont(size, bold):
+    font = pygame.font.SysFont(("purisa","comicsansms","monospace"), 16)
+    if (bold): font.bold = True
+    return font
+
+#TODO mirar por que el texto no cambia de tamaño, comprobar windows
+def drawUI(screen, idCliente):
+
+    if(g_cState == ClientState.WAITING):
+        font = getFont(16, True)
+        text = font.render("WAITING, PLAYER 1 PRESS START", 1, COLOR_SCORE)
+        screen.blit(text, (10, 5))  # lo mismo de arriba pero con el texto
+    elif(g_cState == ClientState.PLAYING):
+        font = getFont(16, True)
+        text = font.render("Controla tu serpiente con las flechas y no mueras!", 1, COLOR_SNAKES[idCliente])
+        screen.blit(text, (10, 5))  # lo mismo de arriba pero con el texto
+    elif(g_cState == ClientState.WON):
+        font = getFont(50, True)
+        text = font.render("Has ganado :D", 1, COLOR_SCORE)
+        screen.blit(text, (10, 5))  # lo mismo de arriba pero con el texto
+    elif(g_cState == ClientState.LOST):
+        font = getFont(50, True)
+        text = font.render("Nooooo, perdiste :c", 1, COLOR_SCORE)
+        screen.blit(text, (10, 5))  # lo mismo de arriba pero con el texto
+
 def main():
 
     socketCliente = GameSocket()
 
     g_thisClientID = conectaServer(socketCliente, "snake")
+    #print(f"la id actual es {g_thisClientID}")
 
     global gs
     gs = GameState()
 
-
-
     #TODO mutex gamestatate
-    t1 = threading.Thread(target = recGameStateThread, args=(gs, socketCliente))
+    t1 = threading.Thread(target = recGameStateThread, args=(gs, socketCliente, g_thisClientID))
     t2 = threading.Thread(target = inputThread, args=(socketCliente, ))
     t1.start()
     #t2.start()
@@ -405,7 +437,8 @@ def main():
     #food = Food()
     #food.randomize_position(snake)
 
-    myfont = pygame.font.SysFont("monospace", 16)  # IU de los donuts ingeridos
+    myfont = pygame.font.SysFont(("purisa","comicsansms","monospace"), 16)
+    myfont.bold = True
 
     marginL = (screen_width - GRID_SIZE * TILE_SIZE)/2
     marginT = (screen_height - GRID_SIZE * TILE_SIZE)/2
@@ -424,11 +457,7 @@ def main():
         r = pygame.Rect((0,0),(TILE_SIZE * GRID_SIZE, TILE_SIZE * GRID_SIZE))
         screen.blit(surface, (marginL, marginT), r)
 
-        if(g_cState == ClientState.WAITING):
-            text = myfont.render("WAITING, PLAYER 1 PRESS START", 1, COLOR_SCORE)
-            screen.blit(text, (5, 10))  # lo mismo de arriba pero con el texto
-        elif(g_cState == ClientState.WON):
-            a = 3
+        drawUI(screen, g_thisClientID)
 
         pygame.display.update()  # esto updatea la ventana en si
 

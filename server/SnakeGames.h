@@ -165,4 +165,25 @@ public:
 				++i;
 			return i;
 	}
+
+	int32_t getWinner() const{
+		if(remainingSnakes() > 1 ) return -1;
+		int32_t i = 1;
+
+		for(auto& snake:snakes){
+			if(snake.isAlive()) return i;
+			else ++i;			
+		}
+		return -1;
+	}
+};
+
+class Winner : public Serializable{
+	protected:
+		int idWinner;
+
+	public:
+		Winner(int id): idWinner(id){};
+		virtual void to_bin() override;
+		virtual int from_bin(json data) override{throw std::runtime_error("From_bin de la clase Winner no esta implementado");};
 };

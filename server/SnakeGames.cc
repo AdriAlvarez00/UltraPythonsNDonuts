@@ -180,3 +180,12 @@ void GameState::randomizeDonut()
 
 	fruit = Vector2(x, y);
 }
+
+void Winner::to_bin()
+{
+	_json["idWinner"] = idWinner;
+
+	std::string dump = _json.dump();
+	_data = dump.c_str();
+	_size = dump.size();
+}

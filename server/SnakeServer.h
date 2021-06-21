@@ -52,7 +52,8 @@ public:
     uint32_t get_connected_id(Socket *socket);
     void handle_input(Socket *sock, Vector2 input);
     void on_connection_requested(Socket *sock, LoginPetition &petition);
-    void broadcast_state();
+    void broadcast_game_state();
+    void broadcast_game_over();
     void handle_messages();
     void run_logic();
 };

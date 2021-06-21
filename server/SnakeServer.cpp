@@ -54,11 +54,27 @@ void SnakeServer::on_connection_requested(Socket *sc, LoginPetition &pet)
     receivedInputs.push_back(Vector2(0, 0));
 }
 
-void SnakeServer::broadcast_state()
+void SnakeServer::broadcast_game_state()
 {
     for (auto it = clients.begin(); it != clients.end(); ++it)
     {
         socket.send(gameState, *(*it).second, MessageID::GAMESTATE);
+    }
+}
+
+void SnakeServer::broadcast_game_over()
+{
+    uint32_t idW = gameState.getWinner();
+    if(idW < 1){
+        std::cout << "Error, el id del ganador no puede ser menor que 1 [SnakeServer.cpp]\n";
+        return;        
+    }
+
+    Winner winner(idW);
+
+    for (auto it = clients.begin(); it != clients.end(); ++it)
+    {
+        socket.send(winner, *(*it).second, MessageID::GAMEOVER);
     }
 }
 
@@ -107,8 +123,7 @@ void SnakeServer::handle_messages()
 void SnakeServer::run_logic()
 {
     while (true)
-    {
-
+    {        
         if (state == ServerState::RUNNNING)
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -123,8 +138,13 @@ void SnakeServer::run_logic()
 
             gameState.update();
             gameState.draw();
+            
             //No tiene sentido hacer broadcast si no actualizamos el estado;
-            broadcast_state();
+            std::cout<<"ganador :"<< gameState.getWinner() << "\n";
+
+            if(gameState.getWinner() > 0 ) state = ServerState::OVER ;
+            else broadcast_game_state();
+
             mtx_state.unlock();
         }
         else if (state == ServerState::WAITING)
@@ -134,8 +154,15 @@ void SnakeServer::run_logic()
 
             gameState.draw();
             //No tiene sentido hacer broadcast si no actualizamos el estado;
-            broadcast_state();
+            broadcast_game_state();
         }
+        else if(state == ServerState::OVER)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));          
+            broadcast_game_state();
+            broadcast_game_over();
+        }
+        std::cout<<"Estado actual: " << state << "\n";
     }
 }
 
