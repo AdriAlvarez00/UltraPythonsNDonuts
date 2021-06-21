@@ -56,6 +56,8 @@ void SnakeServer::on_connection_requested(Socket *sc, LoginPetition &pet)
 
 void SnakeServer::broadcast_game_state()
 {
+    if(dbg_packet_loss !=0 && gameState.get_tick()%dbg_packet_loss==0)
+        return;
     for (auto it = clients.begin(); it != clients.end(); ++it)
     {
         socket.send(gameState, *(*it).second, MessageID::GAMESTATE);
@@ -126,7 +128,7 @@ void SnakeServer::run_logic()
     {        
         if (state == ServerState::RUNNNING)
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            std::this_thread::sleep_for(std::chrono::milliseconds(333));
 
             mtx_input.lock();
             for (int i = 0; i < connectedPlayers; i++)

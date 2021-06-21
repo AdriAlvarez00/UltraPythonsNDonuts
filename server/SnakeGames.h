@@ -137,6 +137,7 @@ class GameState : public Serializable
 	const uint32_t GRID_SIZE = 20;
 	const uint32_t SIZE_PER_FOOD = 2;
 	bool collidesWithSnake(Vector2 pos);
+	uint32_t tick = 0;
 public:
 	GameState() {}
 	virtual void to_bin() override;
@@ -176,6 +177,7 @@ public:
 		}
 		return -1;
 	}
+	uint32_t get_tick() const {return tick;}
 };
 
 class Winner : public Serializable{

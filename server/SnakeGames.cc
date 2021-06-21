@@ -112,6 +112,7 @@ void GameState::to_bin()
 		it->to_bin();
 		_json["snakes"].push_back(it->getJSON());
 	}
+	_json["tick"] = tick;
 
 	std::string dump = _json.dump();
 	_data = dump.c_str();
@@ -131,12 +132,15 @@ int GameState::from_bin(json data)
 		snakes[i].from_bin(data["snakes"].at(i));
 	}
 
+	tick = data["tick"];
+
 	return 0;
 }
 
 
 void GameState::update()
 {
+	tick++;
 	for (auto &snake : snakes)
 	{
 		snake.move(GRID_SIZE);
