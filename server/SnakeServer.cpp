@@ -21,31 +21,38 @@ void SnakeServer::on_connection_requested(Socket *sc, LoginPetition &pet)
 {
     std::cout << "handling connection";
     std::cout << "CONNECTING: " << pet.nick;
-    LoginResponse response(++connectedPlayers);
+    LoginResponse response(++connectedPlayers, gameState.getGridSize());
     socket.send(response, *sc, 1);
     std::unique_ptr<Socket> uptr = std::make_unique<Socket>(*sc);
     sc = nullptr;
     clients.push_back(std::make_pair(response.uid, std::move(uptr)));
 
+    int halfG = gameState.getGridSize() / 2;
+    int quartG = halfG / 2;
+
     mtx_state.lock();
     if (response.uid == 1)
     {
-        Snake s(response.uid, {Vector2(3, 3), Vector2(2, 3)}, Vector2(1, 0));
+        //Snake s(response.uid, {Vector2(7, 7), Vector2(7, 6)}, Vector2(0, 1));
+        Snake s (response.uid, Vector2(quartG), Vector2(0,1), 2);
         gameState.addSnake(s);
     }
     else if(response.uid == 2)
     {
-        Snake s(response.uid, {Vector2(17, 17), Vector2(18, 17)}, Vector2(-1, 0));
+        //Snake s(response.uid, {Vector2(halfG + quartG), Vector2(22, 23)}, Vector2(0, -1));
+        Snake s (response.uid, Vector2(halfG + quartG), Vector2(0,-1), 2);
         gameState.addSnake(s);
     }
         else if(response.uid == 3)
     {
-        Snake s(response.uid, {Vector2(3, 17), Vector2(3,18)}, Vector2(0, -1));
+        //Snake s(response.uid, {Vector2(22, 7), Vector2(23,7)}, Vector2(-1, 0));
+        Snake s (response.uid, Vector2(halfG + quartG, quartG), Vector2(-1,0), 2);
         gameState.addSnake(s);
     }
         else if(response.uid == 4)
     {
-        Snake s(response.uid, {Vector2(17, 3), Vector2(17, 2)}, Vector2(0, 1));
+        //Snake s(response.uid, {Vector2(7, 22), Vector2(6, 22)}, Vector2(1, 0));
+        Snake s (response.uid, Vector2(quartG, halfG + quartG), Vector2(1,0), 2);
         gameState.addSnake(s);
     }
 

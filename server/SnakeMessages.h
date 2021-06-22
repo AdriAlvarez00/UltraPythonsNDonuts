@@ -27,11 +27,13 @@ class LoginResponse : public Serializable
 {
 public:
     uint32_t uid;
-    LoginResponse(size_t id) : uid(id){};
+    uint32_t arenaSize;
+    LoginResponse(size_t id, uint32_t arenaSz) : uid(id), arenaSize(arenaSz){};
     ~LoginResponse() = default;
     virtual void to_bin()
     {
         _json["playerId"] = uid;
+        _json["arenaSize"] = arenaSize;
         std::string dump = _json.dump();
         _data = dump.c_str();
         _size = dump.size();
@@ -39,6 +41,7 @@ public:
     virtual int from_bin(json data)
     {
         uid = data["playerId"];
+        arenaSize = data["arenaSize"];
         return 0;
     }
 };

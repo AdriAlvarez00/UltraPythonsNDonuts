@@ -10,16 +10,16 @@ import threading
 from enum import Enum
 
 # el tamaño de la ventana y el gridsize tienen que ser divisible, y de resultado un n par, si no se mama (hay que añadir excepciones y tal)
-screen_width = 700
-screen_height = 550
+screen_width = 850
+screen_height = 750
 
-GRID_SIZE = 20
-TILE_SIZE = 24
+GRID_SIZE = 0
+TILE_SIZE = 22
 
 GAME_SPEED = 5  # esto determina la velocidad del juego (mayor -> mas rapido)
 
-#(rgb(50,50,50),rgb(50,100,20),rgb(100,20,90),rgb(204,122,0),rgb(0,153,255))
-COLOR_SNAKES = ((50,50,50),(50,100,20),(100,20,90),(204,122,0),(0,153,255))
+#(rgb(50,50,50),rgb(50,100,20),rgb(120,20,190),rgb(250,122,0),rgb(130,60,50),rgb(210,30,20)rgb(220,210,10),rgb(220,90,150),rgb(20,40,250)
+COLOR_SNAKES = ((50,50,50),(50,100,20),(120,20,190),(250,122,0),(130,60,50), (220,210,10), (210,30,20), (220,90,150), (20,40,250))
 SIZE_SNAKE = 7  # tam inicial
 
 TILE_BG = True  # patron de ajedrez
@@ -34,7 +34,7 @@ LENGTH__PER_FOOD = 2
 COLOR_SCORE = (20,20,20)
 SIZE_SCORE = 100
 
-COLOR_BORDES = (80,170,200)
+COLOR_BORDES = (80,180,160)
 
 # direcciones usadas para el movimiento de la serpiente
 up =  Vector2(0,-1)
@@ -226,9 +226,9 @@ class Food():           # Donuts (*/ω＼*)
         pygame.draw.rect(surface, self.color, r, SIZE_FOOD)
 
 
-def drawGrid(surface):  # dibujamos el fondo
-    for y in range(0, GRID_SIZE):
-        for x in range(0, GRID_SIZE):
+def drawGrid(surface, gridSize):  # dibujamos el fondo
+    for y in range(0, gridSize):
+        for x in range(0, gridSize):
             r = pygame.Rect((x*TILE_SIZE, y*TILE_SIZE), (TILE_SIZE, TILE_SIZE))
 
             if TILE_BG and (x+y) % 2 == 0:  # hacemos el patron de ajedrez
@@ -274,8 +274,8 @@ class GameState(Serializable):
         
 
 
-    def draw(self,surface):
-        drawGrid(surface)
+    def draw(self,surface, gridSize):
+        drawGrid(surface, gridSize)
         for snake in self.snakes:
             snake.draw(surface)
         self.food.draw(surface)
@@ -355,16 +355,15 @@ def conectaServer(socket, nick):
     if jObj["ID"] == int(messageID.RESPONSE):
         a = jObj["OBJ"]["playerId"]
         #print(f"mensaje de id de jugador id: {a}")
-        return jObj["OBJ"]["playerId"]
+        return jObj["OBJ"]["playerId"], jObj["OBJ"]["arenaSize"]
     else:
-        a = 2
-        # print(f"ERROR No se pudo conectar con el servidor, devolvió mensajeID: {}", jObj["ID"])
+        print(f"ERROR No se pudo conectar con el servidor, devolvió mensajeID: {a}" )
 
-def drawMargins(surface):
+def drawMargins(surface, gridSize):
 
     #r = pygame.Rect((x*TILE_SIZE, y*TILE_SIZE), (TILE_SIZE, TILE_SIZE))
     #   pygame.draw.rect(surface, COLOR_BG_1, r)
-    gameSize = GRID_SIZE * TILE_SIZE
+    gameSize = gridSize * TILE_SIZE
 
     grosorH = (screen_width - gameSize)/2
     grosorV = (screen_height - gameSize)/2
@@ -382,7 +381,7 @@ def drawMargins(surface):
     pygame.draw.rect(surface, COLOR_BORDES, r)
 
 def getFont(size, bold):
-    font = pygame.font.SysFont(("purisa","comicsansms","monospace"), 16)
+    font = pygame.font.SysFont(("purisa","comicsansms","monospace"), size)
     if (bold): font.bold = True
     return font
 
@@ -398,11 +397,11 @@ def drawUI(screen, idCliente):
         text = font.render("Controla tu serpiente con las flechas y no mueras!", 1, COLOR_SNAKES[idCliente])
         screen.blit(text, (10, 5))  # lo mismo de arriba pero con el texto
     elif(g_cState == ClientState.WON):
-        font = getFont(50, True)
+        font = getFont(20, True)
         text = font.render("Has ganado :D", 1, COLOR_SCORE)
         screen.blit(text, (10, 5))  # lo mismo de arriba pero con el texto
     elif(g_cState == ClientState.LOST):
-        font = getFont(50, True)
+        font = getFont(20, True)
         text = font.render("Nooooo, perdiste :c", 1, COLOR_SCORE)
         screen.blit(text, (10, 5))  # lo mismo de arriba pero con el texto
 
@@ -410,7 +409,7 @@ def main():
 
     socketCliente = GameSocket()
 
-    g_thisClientID = conectaServer(socketCliente, "snake")
+    g_thisClientID, GRID_SIZE = conectaServer(socketCliente, "snake")
     #print(f"la id actual es {g_thisClientID}")
 
     global gs
@@ -449,8 +448,8 @@ def main():
         clock.tick(GAME_SPEED)
 
         sendInput(socketCliente)
-        gs.draw(surface)
-        drawMargins(surfBordes)
+        gs.draw(surface, GRID_SIZE)
+        drawMargins(surfBordes, GRID_SIZE)
         # esto manda la surface a la ventana para pintarla
         screen.blit(surfBordes, ((0, 0)))
         #calculamos los bordes y los ponemos

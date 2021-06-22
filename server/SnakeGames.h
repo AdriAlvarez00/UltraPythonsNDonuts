@@ -23,6 +23,16 @@ public:
 		Vector2 v(this->x + b.x, this->y + b.y);
 		return v;
 	}
+	Vector2 operator-(const Vector2 &b)
+	{
+		Vector2 v(this->x - b.x, this->y - b.y);
+		return v;
+	}
+	Vector2 operator*(const int &b)
+	{
+		Vector2 v(this->x * b, this->y * b);
+		return v;
+	}
 	bool operator==(const Vector2 &b) const
 	{
 		return this->x == b.x && this->y == b.y;
@@ -41,6 +51,7 @@ public:
 
 	Vector2(int _x, int _y) : x(_x), y(_y) {}
 	Vector2() : x(0), y(0) {}
+	Vector2(int b) : x(b), y(b) {}
 };
 
 class Snake : public Serializable
@@ -59,6 +70,16 @@ public:
 	Snake(int i,std::vector<Vector2> body_,Vector2 dir_) : id(i), dir(dir_), body(), length(body_.size()){
 		for(auto& b :body_)
 			body.push_back(b);
+	};
+	Snake(int id_,Vector2 startingPos_, Vector2 dir_, int len_): id(id_), dir(dir_), body(){
+		std::vector<Vector2> bodyparts = {};
+		for(int i = 0; i< len_ ; i++){
+			bodyparts.push_back((startingPos_ - dir_ * i));
+		}
+		for(auto& b :bodyparts)
+			body.push_back(b);
+
+		length = bodyparts.size();		
 	};
 	virtual void to_bin() override;
 	virtual int from_bin(json data) override;
@@ -130,16 +151,16 @@ public:
 class GameState : public Serializable
 {
 	std::vector<Snake> snakes;
-	Vector2 fruit = Vector2(10,10);
+	Vector2 fruit;
 	const char C_SNAKE = 'X';
 	const char C_WALL = '#';
 	const char C_FOOD = '0';
-	const uint32_t GRID_SIZE = 20;
+	const uint32_t GRID_SIZE = 31;	//debe ser impar
 	const uint32_t SIZE_PER_FOOD = 2;
 	bool collidesWithSnake(Vector2 pos);
 	uint32_t tick = 0;
 public:
-	GameState() {}
+	GameState() { fruit = Vector2(GRID_SIZE/2, GRID_SIZE/2);};
 	virtual void to_bin() override;
 	virtual int from_bin(json data) override;
 
@@ -165,6 +186,10 @@ public:
 			if(snake.isAlive())
 				++i;
 			return i;
+	}
+
+	uint32_t const getGridSize(){
+		return GRID_SIZE;
 	}
 
 	int32_t getWinner() const{
