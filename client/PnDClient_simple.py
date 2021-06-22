@@ -11,8 +11,8 @@ from enum import Enum
 from threading import Lock
 
 # el tamaño de la ventana y el gridsize tienen que ser divisible, y de resultado un n par, si no se mama (hay que añadir excepciones y tal)
-screen_width = 650
-screen_height = 650
+screen_width = 700
+screen_height = 700
 
 GRID_SIZE = 0
 TILE_SIZE = 24
@@ -386,19 +386,19 @@ def getFont(size, bold):
 def drawUI(screen, idCliente):
 
     if(g_cState == ClientState.WAITING):
-        font = getFont(16, True)
+        font = getFont(20, True)
         text = font.render("WAITING, PLAYER 1 PRESS START", 1, COLOR_SCORE)
         screen.blit(text, (10, 5))  # lo mismo de arriba pero con el texto
     elif(g_cState == ClientState.PLAYING):
-        font = getFont(16, True)
+        font = getFont(20, True)
         text = font.render("Controla tu serpiente con las flechas y no mueras!", 1, COLOR_SNAKES[idCliente])
         screen.blit(text, (10, 5))  # lo mismo de arriba pero con el texto
     elif(g_cState == ClientState.WON):
-        font = getFont(20, True)
+        font = getFont(30, True)
         text = font.render("Has ganado :D", 1, COLOR_SCORE)
         screen.blit(text, (10, 5))  # lo mismo de arriba pero con el texto
     elif(g_cState == ClientState.LOST):
-        font = getFont(20, True)
+        font = getFont(30, True)
         text = font.render("Nooooo, perdiste :c", 1, COLOR_SCORE)
         screen.blit(text, (10, 5))  # lo mismo de arriba pero con el texto
 
