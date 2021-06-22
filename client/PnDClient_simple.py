@@ -394,11 +394,11 @@ def drawUI(screen, idCliente):
         text = font.render("Controla tu serpiente con las flechas y no mueras!", 1, COLOR_SNAKES[idCliente])
         screen.blit(text, (10, 5))  # lo mismo de arriba pero con el texto
     elif(g_cState == ClientState.WON):
-        font = getFont(30, True)
+        font = getFont(25, True)
         text = font.render("Has ganado :D", 1, COLOR_SCORE)
         screen.blit(text, (10, 5))  # lo mismo de arriba pero con el texto
     elif(g_cState == ClientState.LOST):
-        font = getFont(30, True)
+        font = getFont(25, True)
         text = font.render("Nooooo, perdiste :c", 1, COLOR_SCORE)
         screen.blit(text, (10, 5))  # lo mismo de arriba pero con el texto
 

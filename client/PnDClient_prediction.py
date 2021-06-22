@@ -126,20 +126,21 @@ class Snake(Serializable):
             self.turned = True
 
     def move(self, gridSize):
-        head = self.get_head_position()  # pos actual cabeza
-        dir = self.direction  # direction es una tupla x, y
+        if(self.alive):
+            head = self.get_head_position()  # pos actual cabeza
+            dir = self.direction  # direction es una tupla x, y
 
-        new = Vector2((head.x+dir.x)%gridSize,(head.y+dir.y)%gridSize)
+            new = Vector2((head.x+dir.x)%gridSize,(head.y+dir.y)%gridSize)
 
-        # si la posicion nueva esta ya en el cuerpo (nos hemos chocado), reiniciamos el juego
-        if new in self.positions[3:]:
-            self.reset()
-        else:  # si no nos movemos y crecemos si la variable de longitud es mayor que la longitud real
-            self.positions.insert(0, new)
-            self.turned = False
-            # si no tenemos que crecer, borramos la antigua cola
-            if len(self.positions) > self.length:
-                self.positions.pop()
+            # si la posicion nueva esta ya en el cuerpo (nos hemos chocado), reiniciamos el juego
+            if new in self.positions[3:]:
+                self.reset()
+            else:  # si no nos movemos y crecemos si la variable de longitud es mayor que la longitud real
+                self.positions.insert(0, new)
+                self.turned = False
+                # si no tenemos que crecer, borramos la antigua cola
+                if len(self.positions) > self.length:
+                    self.positions.pop()
 
     def reset(self):  # reseteamos la serpiente
         self.length = SIZE_SNAKE
@@ -257,7 +258,6 @@ class GameState(Serializable):
             if snake.get_head_position() == self.food.position:
                 snake.length += LENGTH__PER_FOOD
                 snake.score += SCORE_PER_FOOD
-                self.food.randomize_position(self.snakes)
         
     def get_json(self):
         json = dict()
@@ -402,11 +402,11 @@ def drawUI(screen, idCliente):
         text = font.render("Controla tu serpiente con las flechas y no mueras!", 1, COLOR_SNAKES[idCliente])
         screen.blit(text, (10, 5))  # lo mismo de arriba pero con el texto
     elif(g_cState == ClientState.WON):
-        font = getFont(30, True)
+        font = getFont(25, True)
         text = font.render("Has ganado :D", 1, COLOR_SCORE)
         screen.blit(text, (10, 5))  # lo mismo de arriba pero con el texto
     elif(g_cState == ClientState.LOST):
-        font = getFont(30, True)
+        font = getFont(25, True)
         text = font.render("Nooooo, perdiste :c", 1, COLOR_SCORE)
         screen.blit(text, (10, 5))  # lo mismo de arriba pero con el texto
 
