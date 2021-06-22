@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import json
-
 from pygame.display import update
 from serializable import Serializable
 import pygame
@@ -277,8 +276,6 @@ class GameState(Serializable):
             snake.from_json(snakeJSON)
         self.food.position = Vector2(json["food"]["x"],json["food"]["y"])
         self.tick = json["tick"]
-        
-
 
     def draw(self,surface):
         drawGrid(surface)
@@ -286,13 +283,6 @@ class GameState(Serializable):
             snake.draw(surface)
         self.food.draw(surface)
 
-
-#TODO esto deberia ser ejecutado en un thread a parte
-def inputThread(socket):
-    while(True):
-        sendInput(socket)
-
-#TODO preguntarle esto a adri
 def recGameStateThread(gs, socket, g_thisClientID):
     global g_cState
     #global g_thisClientID
@@ -355,7 +345,7 @@ def sendInput(socket):
 
 def conectaServer(socket, nick):
     ip = "127.0.0.1"
-    #ip = input("Enter server ip: ")
+    ip = input("Enter server ip: ")
     socket.connect(ip,55555)
     
     jNick = dict()
@@ -468,24 +458,21 @@ def main():
     surfBordes = pygame.Surface(screen.get_size())  #superficie para los bordes
     surfBordes = surface.convert()
 
-    #snake = Snake(14)  # movidas del juego
-    #food = Food()
-    #food.randomize_position(snake)
-
     myfont = pygame.font.SysFont(("purisa","comicsansms","monospace"), 16)
     myfont.bold = True
 
     marginL = (screen_width - GRID_SIZE * TILE_SIZE)/2
     marginT = (screen_height - GRID_SIZE * TILE_SIZE)/2
-    #Comenzamos a ejecutar un bucle de input
-    #Bucle de red/render
-
-
+    #Bucle de recepcion de mensajes
     t1 = threading.Thread(target = recGameStateThread, args=(gs, socketCliente, g_thisClientID))
+    
+    #Bucle de renderizado y prediccion
     t2 = threading.Thread(target = drawNPredict, args=(gs,screen,surface,surfBordes,marginL,marginT ))
+    
     t1.start()
     t2.start()
 
+    #Hilo de input
     while (True):
         clock.tick(GAME_SPEED)
         sendInput(socketCliente)
