@@ -68,7 +68,7 @@ bool GameState::collidesWithSnake(Vector2 pos)
 
 void GameState::draw()
 {
-	//printf("\033c");
+	printf("\033c");
 	for (int y = 0; y < GRID_SIZE + 2; y++)
 	{
 		for (int x = 0; x < GRID_SIZE + 2; x++)

@@ -155,7 +155,7 @@ class GameState : public Serializable
 	const char C_SNAKE = 'X';
 	const char C_WALL = '#';
 	const char C_FOOD = '0';
-	const uint32_t GRID_SIZE = 31;	//debe ser impar
+	const uint32_t GRID_SIZE = 25;	//debe ser impar
 	const uint32_t SIZE_PER_FOOD = 2;
 	bool collidesWithSnake(Vector2 pos);
 	uint32_t tick = 0;

@@ -10,11 +10,11 @@ import threading
 from enum import Enum
 
 # el tamaño de la ventana y el gridsize tienen que ser divisible, y de resultado un n par, si no se mama (hay que añadir excepciones y tal)
-screen_width = 850
-screen_height = 750
+screen_width = 650
+screen_height = 650
 
 GRID_SIZE = 0
-TILE_SIZE = 22
+TILE_SIZE = 24
 
 GAME_SPEED = 5  # esto determina la velocidad del juego (mayor -> mas rapido)
 
@@ -286,10 +286,8 @@ def inputThread(socket):
     while(True):
         sendInput(socket)
 
-#TODO preguntarle esto a adri
 def recGameStateThread(gs, socket, g_thisClientID):
     global g_cState
-    #global g_thisClientID
     while(True):
         jObj = socket.recvObj()
         i = jObj["ID"]

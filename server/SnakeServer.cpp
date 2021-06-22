@@ -29,6 +29,7 @@ void SnakeServer::on_connection_requested(Socket *sc, LoginPetition &pet)
 
     int halfG = gameState.getGridSize() / 2;
     int quartG = halfG / 2;
+    int distAlDonut = 2;
 
     mtx_state.lock();
     if (response.uid == 1)
@@ -53,6 +54,26 @@ void SnakeServer::on_connection_requested(Socket *sc, LoginPetition &pet)
     {
         //Snake s(response.uid, {Vector2(7, 22), Vector2(6, 22)}, Vector2(1, 0));
         Snake s (response.uid, Vector2(quartG, halfG + quartG), Vector2(1,0), 2);
+        gameState.addSnake(s);
+    }
+    else if(response.uid == 5)
+    {        
+        Snake s (response.uid, Vector2(halfG - distAlDonut), Vector2(0,-1), 2);
+        gameState.addSnake(s);
+    }
+    else if(response.uid == 6)
+    {        
+        Snake s (response.uid, Vector2(halfG + distAlDonut, halfG -2), Vector2(-1,0), 2);
+        gameState.addSnake(s);
+    }
+    else if(response.uid == 7)
+    {        
+        Snake s (response.uid, Vector2(halfG + distAlDonut), Vector2(0,1), 2);
+        gameState.addSnake(s);
+    }
+    else if(response.uid == 8)
+    {        
+        Snake s (response.uid, Vector2(halfG - distAlDonut, halfG + 2), Vector2(1,0), 2);
         gameState.addSnake(s);
     }
 

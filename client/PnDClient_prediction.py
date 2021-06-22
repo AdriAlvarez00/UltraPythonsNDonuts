@@ -15,30 +15,30 @@ import time
 
 # el tamaño de la ventana y el gridsize tienen que ser divisible, y de resultado un n par, si no se mama (hay que añadir excepciones y tal)
 screen_width = 700
-screen_height = 550
+screen_height = 700
 
-GRID_SIZE = 20
+GRID_SIZE = 21
 TILE_SIZE = 24
 
 GAME_SPEED = 5  # esto determina la velocidad del juego (mayor -> mas rapido)
 
 #(rgb(50,50,50),rgb(50,100,20),rgb(100,20,90),rgb(204,122,0),rgb(0,153,255))
-COLOR_SNAKES = ((50,50,50),(50,100,20),(100,20,90),(204,122,0),(0,153,255))
+COLOR_SNAKES = ((10,10,10),(50,100,20),(120,20,190),(250,122,0),(130,60,50), (220,210,10), (210,30,20), (220,90,150), (20,40,250))
 SIZE_SNAKE = 7  # tam inicial
 
 TILE_BG = True  # patron de ajedrez
-COLOR_BG_1 = (150, 150, 170)
-COLOR_BG_2 = (180, 180, 200)
+COLOR_BG_1 = (45,45,45)
+COLOR_BG_2 = (35,35,35)
 
 COLOR_FOOD = (223, 50, 90)
 SIZE_FOOD = 8
 SCORE_PER_FOOD = 1
 LENGTH__PER_FOOD = 2
 
-COLOR_SCORE = (20,20,20)
+COLOR_SCORE = (200,200,200)
 SIZE_SCORE = 100
 
-COLOR_BORDES = (80,170,200)
+COLOR_BORDES = (10,20,40)
 
 # direcciones usadas para el movimiento de la serpiente
 up =  Vector2(0,-1)
@@ -126,11 +126,11 @@ class Snake(Serializable):
             self.direction = dirMov
             self.turned = True
 
-    def move(self):
+    def move(self, gridSize):
         head = self.get_head_position()  # pos actual cabeza
         dir = self.direction  # direction es una tupla x, y
 
-        new = Vector2((head.x+dir.x)%GRID_SIZE,(head.y+dir.y)%GRID_SIZE)
+        new = Vector2((head.x+dir.x)%gridSize,(head.y+dir.y)%gridSize)
 
         # si la posicion nueva esta ya en el cuerpo (nos hemos chocado), reiniciamos el juego
         if new in self.positions[3:]:
@@ -144,7 +144,7 @@ class Snake(Serializable):
 
     def reset(self):  # reseteamos la serpiente
         self.length = SIZE_SNAKE
-        self.positions = [Vector2(GRID_SIZE/2,GRID_SIZE/2)]
+        self.positions = [Vector2(gridSize/2,gridSize/2)]
         self.direction = right  # random.choice([up, down, left, right])
         self.score = 0
 
@@ -232,9 +232,9 @@ class Food():           # Donuts (*/ω＼*)
         pygame.draw.rect(surface, self.color, r, SIZE_FOOD)
 
 
-def drawGrid(surface):  # dibujamos el fondo
-    for y in range(0, GRID_SIZE):
-        for x in range(0, GRID_SIZE):
+def drawGrid(surface, gridSize):  # dibujamos el fondo
+    for y in range(0, gridSize):
+        for x in range(0, gridSize):
             r = pygame.Rect((x*TILE_SIZE, y*TILE_SIZE), (TILE_SIZE, TILE_SIZE))
 
             if TILE_BG and (x+y) % 2 == 0:  # hacemos el patron de ajedrez
@@ -250,10 +250,10 @@ class GameState(Serializable):
         self.food.position = Vector2(10,10)
         self.tick = 0
 
-    def update(self):
+    def update(self, gridSize):
         self.tick= self.tick+1
         for snake in self.snakes:
-            snake.move()
+            snake.move(gridSize)
             
             if snake.get_head_position() == self.food.position:
                 snake.length += LENGTH__PER_FOOD
@@ -280,8 +280,8 @@ class GameState(Serializable):
         
 
 
-    def draw(self,surface):
-        drawGrid(surface)
+    def draw(self,surface, gridSize):
+        drawGrid(surface, gridSize)
         for snake in self.snakes:
             snake.draw(surface)
         self.food.draw(surface)
@@ -292,10 +292,8 @@ def inputThread(socket):
     while(True):
         sendInput(socket)
 
-#TODO preguntarle esto a adri
-def recGameStateThread(gs, socket, g_thisClientID):
+def recGameStateThread(gs, socket, g_thisClientID, gridSize):
     global g_cState
-    #global g_thisClientID
     while(True):
         jObj = socket.recvObj()
         i = jObj["ID"]
@@ -313,7 +311,7 @@ def recGameStateThread(gs, socket, g_thisClientID):
             else: 
                 for i in range(diff): 
                     print("stepsip")
-                    gs.update()
+                    gs.update(gridSize)
             mtx_gamestate.release()
         elif i == int(messageID.GAMEOVER):
             winner = jObj["OBJ"]["idWinner"]
@@ -369,16 +367,16 @@ def conectaServer(socket, nick):
     if jObj["ID"] == int(messageID.RESPONSE):
         a = jObj["OBJ"]["playerId"]
         #print(f"mensaje de id de jugador id: {a}")
-        return jObj["OBJ"]["playerId"]
+        return jObj["OBJ"]["playerId"], jObj["OBJ"]["arenaSize"]
     else:
         a = 2
         # print(f"ERROR No se pudo conectar con el servidor, devolvió mensajeID: {}", jObj["ID"])
 
-def drawMargins(surface):
+def drawMargins(surface, gridSize):
 
     #r = pygame.Rect((x*TILE_SIZE, y*TILE_SIZE), (TILE_SIZE, TILE_SIZE))
     #   pygame.draw.rect(surface, COLOR_BG_1, r)
-    gameSize = GRID_SIZE * TILE_SIZE
+    gameSize = gridSize * TILE_SIZE
 
     grosorH = (screen_width - gameSize)/2
     grosorV = (screen_height - gameSize)/2
@@ -420,20 +418,20 @@ def drawUI(screen, idCliente):
         text = font.render("Nooooo, perdiste :c", 1, COLOR_SCORE)
         screen.blit(text, (10, 5))  # lo mismo de arriba pero con el texto
 
-def drawNPredict(gs,screen,surface,surfBordes,marginL,marginT):
+def drawNPredict(gs,screen,surface,surfBordes,marginL,marginT, g_thisClientID, gridSize):
     while True:
         time.sleep(1/3)
         mtx_gamestate.acquire()
         print("drawn")
-        gs.draw(surface)
+        gs.draw(surface, gridSize)
         mtx_gamestate.release()
 
 
-        drawMargins(surfBordes)
+        drawMargins(surfBordes, gridSize)
         # esto manda la surface a la ventana para pintarla
         screen.blit(surfBordes, ((0, 0)))
         #calculamos los bordes y los ponemos
-        r = pygame.Rect((0,0),(TILE_SIZE * GRID_SIZE, TILE_SIZE * GRID_SIZE))
+        r = pygame.Rect((0,0),(TILE_SIZE * gridSize, TILE_SIZE * gridSize))
         screen.blit(surface, (marginL, marginT), r)
 
         drawUI(screen, g_thisClientID)
@@ -445,14 +443,14 @@ def drawNPredict(gs,screen,surface,surfBordes,marginL,marginT):
         if(g_cState == ClientState.PLAYING):
             mtx_gamestate.acquire()
             print("predicted")
-            gs.update()
+            gs.update(gridSize)
             mtx_gamestate.release()
 
 def main():
 
     socketCliente = GameSocket()
 
-    g_thisClientID = conectaServer(socketCliente, "snake")
+    g_thisClientID, GRID_SIZE = conectaServer(socketCliente, "snake")
 
     gs = GameState()
 
@@ -481,8 +479,8 @@ def main():
     #Bucle de red/render
 
 
-    t1 = threading.Thread(target = recGameStateThread, args=(gs, socketCliente, g_thisClientID))
-    t2 = threading.Thread(target = drawNPredict, args=(gs,screen,surface,surfBordes,marginL,marginT ))
+    t1 = threading.Thread(target = recGameStateThread, args=(gs, socketCliente, g_thisClientID, GRID_SIZE))
+    t2 = threading.Thread(target = drawNPredict, args=(gs,screen,surface,surfBordes,marginL,marginT, g_thisClientID, GRID_SIZE))
     t1.start()
     t2.start()
 
