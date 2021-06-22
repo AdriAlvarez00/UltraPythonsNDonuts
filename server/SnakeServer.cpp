@@ -137,7 +137,7 @@ void SnakeServer::handle_messages()
         }
         else if (id == MessageID::REQUESTSTART)
         {
-            if (connectedPlayers > 0 && get_connected_id(msgSock)==1)
+            if (connectedPlayers > 1 && get_connected_id(msgSock)==1)
             {
                 StartGame start;
                 for (auto it = clients.begin(); it != clients.end(); ++it)
@@ -214,7 +214,7 @@ void SnakeServer::handle_input(Socket *sock, Vector2 input)
     //Modificamos el input del jugador correspondiente, se podria usar un MAP pero para
     //tan pocos jugadores no creo que afecte, podria ser hasta peor el coste logaritmico
     //mtx_input.lock();
-    std::cout << "connid: " << get_connected_id(sock) << std::endl;
+    //std::cout << "connid: " << get_connected_id(sock) << std::endl;
     receivedInputs[get_connected_id(sock) - 1] = input;
     mtx_input.unlock();
 }

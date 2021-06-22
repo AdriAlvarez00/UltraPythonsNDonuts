@@ -8,6 +8,7 @@ from pygame.math import Vector2
 from gameSocket import GameSocket
 import threading
 from enum import Enum
+from threading import Lock
 
 # el tamaño de la ventana y el gridsize tienen que ser divisible, y de resultado un n par, si no se mama (hay que añadir excepciones y tal)
 screen_width = 650
@@ -67,6 +68,8 @@ class ClientState(Enum):
 
 g_cState = ClientState.WAITING
 g_thisClientID = -1
+
+mtx_gamestate = Lock()
 
 class Snake(Serializable):
     def __init__(self,id):
@@ -280,12 +283,6 @@ class GameState(Serializable):
             snake.draw(surface)
         self.food.draw(surface)
 
-
-#TODO esto deberia ser ejecutado en un thread a parte
-def inputThread(socket):
-    while(True):
-        sendInput(socket)
-
 def recGameStateThread(gs, socket, g_thisClientID):
     global g_cState
     while(True):
@@ -297,8 +294,10 @@ def recGameStateThread(gs, socket, g_thisClientID):
         elif i == int(messageID.GAMESTATE):
             #print(jObj["OBJ"])
             print("Recibido gamestate")
+            mtx_gamestate.acquire()
             gs.from_json(jObj["OBJ"])
             if(not gs.snakes[g_thisClientID - 1].alive): g_cState = ClientState.LOST
+            mtx_gamestate.release()
         elif i == int(messageID.GAMEOVER):
             winner = jObj["OBJ"]["idWinner"]
             #print(f"Winner winner chicken diner id:{winner} , idpropia: {g_thisClientID}")
@@ -339,7 +338,7 @@ def sendInput(socket):
 
 def conectaServer(socket, nick):
     ip = "127.0.0.1"
-    #ip = input("Enter server ip: ")
+    ip = input("Enter server ip: ")
     socket.connect(ip,55555)
     
     jNick = dict()
@@ -408,16 +407,12 @@ def main():
     socketCliente = GameSocket()
 
     g_thisClientID, GRID_SIZE = conectaServer(socketCliente, "snake")
-    #print(f"la id actual es {g_thisClientID}")
 
     global gs
     gs = GameState()
 
-    #TODO mutex gamestatate
     t1 = threading.Thread(target = recGameStateThread, args=(gs, socketCliente, g_thisClientID))
-    t2 = threading.Thread(target = inputThread, args=(socketCliente, ))
     t1.start()
-    #t2.start()
 
     pygame.init()  # inicializamos movidas de pygame
 
@@ -429,10 +424,6 @@ def main():
 
     surfBordes = pygame.Surface(screen.get_size())  #superficie para los bordes
     surfBordes = surface.convert()
-
-    #snake = Snake(14)  # movidas del juego
-    #food = Food()
-    #food.randomize_position(snake)
 
     myfont = pygame.font.SysFont(("purisa","comicsansms","monospace"), 16)
     myfont.bold = True
@@ -446,7 +437,9 @@ def main():
         clock.tick(GAME_SPEED)
 
         sendInput(socketCliente)
+        mtx_gamestate.acquire()
         gs.draw(surface, GRID_SIZE)
+        mtx_gamestate.release()
         drawMargins(surfBordes, GRID_SIZE)
         # esto manda la surface a la ventana para pintarla
         screen.blit(surfBordes, ((0, 0)))
